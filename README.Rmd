@@ -23,7 +23,7 @@ for mixed-type longitudinal data
 
 ## Description
 
-`BCClong` is an R package for performing Bayesian Consensus Clustering (BCC) model for clustering continuous, discrete and categorical longitudinal data, which are commonly seen in many clinical studies. Statistical methods for clustering a single longitudinal trajectory have been well-developed and widely used in many different medical research areas. However, it is very common these days to encounter situations where several longitudinal markers or responses are collected simultaneously in a study and there is a growing interest to examine how multiple longitudinal characteristics could collectively contribute to disaggregating disease heterogeneity. 
+`BCClong` is an R package for performing Bayesian Consensus Clustering (BCC) model for clustering continuous, discrete and categorical longitudinal data, which are commonly seen in many clinical studies [Lu et al., 2021]. Statistical methods for clustering a single longitudinal trajectory have been well-developed and widely used in many different medical research areas. However, it is very common these days to encounter situations where several longitudinal markers or responses are collected simultaneously in a study and there is a growing interest to examine how multiple longitudinal characteristics could collectively contribute to disaggregating disease heterogeneity. 
 
 ## Installation
 
