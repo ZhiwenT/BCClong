@@ -6,6 +6,23 @@ Authors@R: person("Z", "Tan", email = "21zt9@queensu.ca", role = c("aut", "cre")
 Maintainer: Zhiwen Tan <21zt9@queensu.ca>
 Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
+Depends: R (>= 3.5.0)
 License: MIT + file LICENSE
-Imports: Rcpp (>= 1.0.9)
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.0
+Imports: 
+    cluster,
+    coda,
+    label.switching,
+    lme4,
+    mclust,
+    MCMCpack,
+    mixAK,
+    mvtnorm,
+    nnet,
+    Rcpp (>= 1.0.9),
+    Rmpfr,
+    stats,
+    truncdist
 LinkingTo: Rcpp, RcppArmadillo
