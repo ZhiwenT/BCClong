@@ -26,3 +26,7 @@ Imports:
     stats,
     truncdist
 LinkingTo: Rcpp, RcppArmadillo
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
