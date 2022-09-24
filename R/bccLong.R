@@ -69,6 +69,7 @@
 #' @import cluster
 #' @importFrom coda geweke.diag
 #' @importFrom stats binomial poisson sd var
+#' @useDynLib BCClong, .registration=TRUE
 
 BCC.multi <- function(
     mydat,                 # List of R outcomes (R is the number of outcome, R>=2)
@@ -453,7 +454,7 @@ BCC.multi <- function(
 
   begin <- proc.time()[1]
 
-  sourceCpp("BCC.cpp")
+  #sourceCpp("src/BCC.cpp")
   tryCatch({
     rst = BCC(
       dat, R,

@@ -1,6 +1,10 @@
 ---
 title: "PackageTutorial"
-output: rmarkdown::html_vignette
+author: "Zhiwen Tan"
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    number_sections: false
 vignette: >
   %\VignetteIndexEntry{PackageTutorial}
   %\VignetteEngine{knitr::rmarkdown}
@@ -14,6 +18,9 @@ knitr::opts_chunk$set(
 )
 ```
 
+## Introduction
+
+`BCClong` is an R package to provide a Bayesian Consensus Clustering method on longitudinal data. T
 ```{r setup}
 library(BCClong)
 ```
