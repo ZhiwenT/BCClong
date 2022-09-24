@@ -88,6 +88,9 @@ For tutorials and plot interpretation, refer to the vignette:
 browseVignettes("BCClong")
 ```
 
+Three options include a HTMl version, source R markdown file and R code
+file.
+
 ## Citation for Package
 
 ``` r
