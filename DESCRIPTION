@@ -28,5 +28,7 @@ Imports:
 LinkingTo: Rcpp, RcppArmadillo
 Suggests: 
     knitr,
-    rmarkdown
+    rmarkdown,
+    ggplot2,
+    cowplot
 VignetteBuilder: knitr
