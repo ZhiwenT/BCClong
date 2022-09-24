@@ -31,7 +31,7 @@ You can install the development version of BCC from
 ``` r
 # install.packages("devtools")
 devtools::install_github("ZhiwenT/BCClong", build_vignettes = TRUE)
-library("MPLNClust")
+library("BCClong")
 ```
 
 ## Overview
