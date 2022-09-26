@@ -160,7 +160,7 @@ To plot the results, `ggplot2` and `cowplot` are used here. Other plotting metho
 
 ```{r, fig.height=8, fig.width=8}
 dat <- fit.BCC$dat
-dat[[1]]$time.org <- dat[[1]]$time + mean(dnew910$month,na.rm=TRUE) # transform the time back to the orignal scale
+dat[[1]]$time.org <- dat[[1]]$time + mean(dnew910$month,na.rm=TRUE) # transform the time back to the original scale
 
 # For the first marker by local clustering
 dat[[1]]$cluster.local <- factor(dat[[1]]$cluster.local,label=c("Cluster 1","Cluster 2"))
