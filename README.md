@@ -7,7 +7,7 @@
 <!-- badges: end -->
 
 The goal of BCCLong is to compute a Bayesian Consensus Clustering (BCC)
-model for mixed-type longitudinal data
+model for mixed-type (e.g. continous, discrete and categorical) longitudinal data
 
 ## Description
 
