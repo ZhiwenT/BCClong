@@ -7,7 +7,7 @@
 <!-- badges: end -->
 
 The goal of BCCLong is to compute a Bayesian Consensus Clustering (BCC)
-model for mixed-type (e.g. continous, discrete and categorical) longitudinal data
+model for mixed-type longitudinal data
 
 ## Description
 
@@ -62,7 +62,9 @@ The package tree structure is provide below
   |- README
   |- inst
     |- extdata
-      |- BCC.rds
+      |- Epileptic.rds
+      |- PBCseq.rds
+      |- MeanAdj.png
       |- procedure.png
     |-CITATION
   |- man
@@ -76,7 +78,8 @@ The package tree structure is provide below
     |- Makevars
     |- Makevars.win
   |- vignettes
-    |- PackageTutorial.Rmd
+    |- ContinuousData.Rmd
+    |- MixedTypeData.Rmd
 ```
 
 ## Tutorials
