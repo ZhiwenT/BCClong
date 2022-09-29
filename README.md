@@ -95,10 +95,15 @@ file. There are two tutorials in this package, one is for dataset with
 continuous data only, and the second one is for dataset with mixed type
 of data. Tutorial can also be found from the link below. Make sure to
 open the html file in browser, the github website only shows the source
-code. Continuous variables only:
-`https://github.com/ZhiwenT/BCClong/blob/main/vignettes/ContinuousData.html`
+code.
+
+Continuous variables only:
+
+<https://github.com/ZhiwenT/BCClong/blob/main/vignettes/ContinuousData.html>
+
 Mixed type variables:
-`https://github.com/ZhiwenT/BCClong/blob/main/vignettes/MixedTypeData.html`
+
+<https://github.com/ZhiwenT/BCClong/blob/main/vignettes/MixedTypeData.html>
 
 ## Citation for Package
 
