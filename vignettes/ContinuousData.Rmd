@@ -1,0 +1,76 @@
+---
+title: "ContinuousData"
+author: "Zhiwen Tan"
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    number_sections: false
+vignette: >
+  %\VignetteIndexEntry{ContinuousData}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Introduction
+
+`BCClong` is an R package for performing Bayesian Consensus Clustering (BCC) model for clustering continuous, discrete and categorical longitudinal data, which are commonly seen in many clinical studies. This document gives a tour of BCClong package.
+
+see `help(package = "BCClong")` for more information and references provided by `citation("BCClong")`
+
+To download **BCClong**, use the following commands:
+
+``` r
+require("devtools")
+devtools::install_github("ZhiwenT/BCClong", build_vignettes = TRUE)
+library("BCClong")
+```
+To list all functions available in this package:
+
+```r
+ls("package:BCClong")
+```
+
+## Components
+
+Currently, there are 1 function __*BCC.multi*__ in this package which will provide a summary statistics for the computed model. To use this function, the input dataset requires some pre-process. Here, we are given an example to provide an work flow for this package.
+
+## Pre-process (Setting up)
+
+In this example, the `epileptic.qol` data set from `joinrRML` package was used . We are only interested in the data before 910 days (2.5 years).
+
+```{r}
+library(joineRML)
+data(epileptic.qol)
+epileptic.qol <- epileptic.qol[order(epileptic.qol$id,epileptic.qol$time),]  # Sort by ID and time
+epileptic.qol$time_month <- epileptic.qol$time/30.25
+
+epileptic.qol <- epileptic.qol[is.na(epileptic.qol$anxiety)==FALSE,]
+epileptic.qol <- epileptic.qol[is.na(epileptic.qol$depress)==FALSE,]
+epileptic.qol <- epileptic.qol[is.na(epileptic.qol$aep)==FALSE,]
+
+# remove observations (not individuals) where all three markers are NA
+epileptic.qol <- epileptic.qol[!(is.na(epileptic.qol$anxiety)==TRUE & is.na(epileptic.qol$depress)==TRUE  & is.na(epileptic.qol$aep)==TRUE),]
+
+# create a new ID variable with values from 1 to N;
+subj <- unique(epileptic.qol$id)
+N <- length(subj)
+id.new <- NULL
+for (i in 1:N) {id.new   <- c(id.new, 
+                              rep(i,length(epileptic.qol[epileptic.qol$id==subj[i],]$id)))}
+epileptic.qol$id.new <- id.new
+
+epileptic.qol$anxiety_scale <- scale(epileptic.qol$anxiety)
+epileptic.qol$depress_scale <- scale(epileptic.qol$depress)
+epileptic.qol$aep_scale <- scale(epileptic.qol$aep)
+epileptic.qol$timec <- epileptic.qol$time - mean(epileptic.qol$time)
+
+dat <- epileptic.qol
+```
+

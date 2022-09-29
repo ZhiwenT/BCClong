@@ -5,11 +5,10 @@ citEntry(
   title    = " Bayesian Consensus Clustering (BCC) model
               for mixed-type longitudinal data",
   note     = "Unpublished",
-  author   = "Z. Tan",
+  author   = "Z. Tan, C. Shen, Z. Lu",
   year  = "2022",
   url      = "https://github.com/ZhiwenT/BCClong",
-  textVersion = paste("Tan, Z. (2022) BCClong (Bayesian Consensus Clustering (BCC) model
-              for mixed-type longitudinal data): an R package for performing Bayesian Consensus Clustering (BCC) model for clustering continuous, discrete and categorical longitudinal data. URL https://github.com/ZhiwenT/BCClong"
+  textVersion = paste("Tan, Z., Shen, C., Lu, Z. (2022) BCClong: an R package for performing Bayesian Consensus Clustering model for clustering continuous, discrete and categorical longitudinal data. URL https://github.com/ZhiwenT/BCClong"
 
   )
 )

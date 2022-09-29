@@ -60,10 +60,9 @@ The package tree structure is provide below
   |- NAMESPACE
   |- LICENSE
   |- README
-  |- data
-    |- BCC.rds
   |- inst
     |- extdata
+      |- BCC.rds
       |- procedure.png
     |-CITATION
   |- man
@@ -97,10 +96,10 @@ file.
 citation("BCClong")
 ```
 
-Tan, Z. (2022) BCClong (Bayesian Consensus Clustering (BCC) model for
-mixed-type longitudinal data): an R package for performing Bayesian
-Consensus Clustering (BCC) model for clustering continuous, discrete and
-categorical longitudinal data. URL <https://github.com/ZhiwenT/BCClong>
+Tan, Z., Shen, C., Lu, Z. (2022) BCClong: an R package for performing
+Bayesian Consensus Clustering model for clustering continuous, discrete
+and categorical longitudinal data. URL
+<https://github.com/ZhiwenT/BCClong>
 
 ## References
 

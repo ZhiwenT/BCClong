@@ -109,7 +109,13 @@ Rcpp::List BCC (
     int max_iter,
     int seed_initial
   ) {
-  Rcpp::Rcout << "Cpp hi" << std::endl ;
+  Rcpp::Rcout << "Cpp begins" << std::endl ;
+
+  a0.reshape(R, num_cluster);
+  b0.reshape(R, num_cluster);
+  c0.reshape(R, num_cluster);
+  d0.reshape(R, num_cluster);
+
 #ifdef NORAND
   Rcpp::Function set_seed("set.seed");
 #endif
@@ -349,10 +355,10 @@ Rcpp::List BCC (
             mu = eta;
             kappa.diag() += sigma_sq_e[r][k];
           } else if (dist[r].compare("poisson") == 0) {
-            mu = exp(eta); // TODO is this right?
+            mu = exp(eta);  
             kappa.diag() += exp(eta);
           } else if (dist[r].compare("binomial") == 0) {
-            mu = exp(eta)/(1+exp(eta)); // TODO is this right?
+            mu = exp(eta)/(1+exp(eta)); 
             arma::rowvec p = exp(eta)/(1+exp(eta));
             kappa.diag() += p % (1-p); // element-wise product
           }
@@ -519,7 +525,7 @@ Rcpp::List BCC (
 #endif
 
     //-------------------------------------------------------------#
-    // Adding Order Contraint 
+    // Adding Order Constraint 
     // Cluster with the smallest intercept will be the first group
     // Cluster with the largest intercept will be the last group
     //-------------------------------------------------------------#
@@ -620,10 +626,10 @@ Rcpp::List BCC (
             mu = eta;
             kappa.diag() += sigma_sq_e[r][k];
           } else if (dist[r].compare("poisson") == 0) {
-            mu = exp(eta); // TODO is this right?
+            mu = exp(eta);  
             kappa.diag() += exp(eta);
           } else if (dist[r].compare("binomial") == 0) {
-            mu = exp(eta)/(1+exp(eta)); // TODO is this right?
+            mu = exp(eta)/(1+exp(eta));  
             arma::rowvec p = exp(eta)/pow(1+exp(eta),2); // TODO why is there a square
             kappa.diag() += p % (1-p); // element-wise product
           }
@@ -934,7 +940,7 @@ Rcpp::List BCC (
     if (iter == max_iter) break;
   }
 
-  Rcpp::Rcout << "Cpp bye" << std::endl ;
+  Rcpp::Rcout << "Cpp ends" << std::endl ;
   rst.push_back(PPI         , "PPI");
   rst.push_back(ZZ          , "ZZ");
   rst.push_back(T           , "T");
