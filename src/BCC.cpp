@@ -12,9 +12,9 @@ arma::rowvec AlignClusters (arma::rowvec Z1, arma::rowvec Z2, std::string type =
   // if (type.compare("vec") == 0) {
     arma::rowvec uniq1 = unique(Z1);
     arma::rowvec uniq2 = unique(Z2);
-    for (int k = 0; k < uniq1.size(); k++) {
+    for (arma::uword k = 0; k < uniq1.size(); k++) {
       double Max = arma::sum(Z1==k && Z2==k)/(.01+arma::sum(Z2==k)+arma::sum(Z1==k));
-      for(int tempk = 0; tempk < uniq2.size(); tempk++) {
+      for(arma::uword tempk = 0; tempk < uniq2.size(); tempk++) {
         if(arma::sum(Z1==k && Z2==tempk)/(.01+arma::sum(Z2==tempk)+arma::sum(Z1==k)) > Max) {
           Max                 = arma::sum(Z1==k && Z2==tempk)/(.01+arma::sum(Z2==tempk)+arma::sum(Z1==k));
           arma::urowvec dummy = Z2==k;
@@ -265,7 +265,7 @@ Rcpp::List BCC (
         Rcpp::Environment truncdist = Rcpp::Environment::namespace_env("truncdist");
         Rcpp::Function rtrunc = truncdist["rtrunc"];
         Rcpp::NumericVector tau = Rcpp::no_init(zz_local.n_rows);
-        for (int i = 0; i < zz_local.n_rows; i++) {
+        for (arma::uword i = 0; i < zz_local.n_rows; i++) {
           arma::rowvec row = zz_local.row(i);
           tau(i) = arma::sum(row.t() == zz);
         }
@@ -320,10 +320,10 @@ Rcpp::List BCC (
 #endif
 
     //--------------------------------------------------------------#
-    // Sample Fixed Effect Coefficients (GAMMA) Using MH Alogrithm
+    // Sample Fixed Effect Coefficients (GAMMA) Using MH Algorithm
     //--------------------------------------------------------------#
 #ifdef DEBUG
-    Rcpp::Rcout << "Sample Fixed Effect Coefficients (GAMMA) Using MH Alogrithm" << std::endl;
+    Rcpp::Rcout << "Sample Fixed Effect Coefficients (GAMMA) Using MH Algorithm" << std::endl;
 #endif
     std::vector<arma::cube> H(R);
     std::vector<arma::mat>  G(R);
@@ -377,7 +377,7 @@ Rcpp::List BCC (
     Rcpp::Rcout << "phase 2" << std::endl;
 #endif
     std::vector<arma::mat> gamma_new(gamma.size());
-    for (int i = 0; i < gamma.size(); i++) gamma_new[i] = arma::mat(gamma[i]); // has the same structure as ga
+    for (arma::uword i = 0; i < gamma.size(); i++) gamma_new[i] = arma::mat(gamma[i]); // has the same structure as ga
     
     std::vector<arma::cube> V_tid(R);
     std::vector<arma::mat>  v_tid(R);
@@ -418,7 +418,7 @@ Rcpp::List BCC (
         arma::rowvec gamma_prop = Rcpp::as<arma::rowvec>(mvrnorm(
           Rcpp::_["n"]     = 1,
           Rcpp::_["mu"]    = v_tid[r].row(k),
-          Rcpp::_["Sigma"] = c_gamma_tuning[r,k]*V_tid[r].slice(k)));  //  proposed new values 
+          Rcpp::_["Sigma"] = c_gamma_tuning(r,k)*V_tid[r].slice(k)));  //  proposed new values 
 #ifdef DEBUG
         gamma_props[r][k] = gamma_prop;
 #endif
