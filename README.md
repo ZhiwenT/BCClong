@@ -43,13 +43,15 @@ ls("package:BCClong")
 ```
 
 Currently, there are 1 function ***BCC.multi*** in this package which
-will provide a summary statistics for the computed model.
+will provide a summary statistics for the computed model. This function
+will take in a data set and multiple parameters and output a BCC model
+with summary statistics.
 
-An overview of the package is illustrated below:
+more information can be found by using the code below after installation
 
-<div style="text-align:center">
-<img src="./inst/extdata/procedure.png" width="1000"/>
-<div style="text-align:left">
+``` r
+?BCClong::BCC.multi
+```
 
 The package tree structure is provide below
 
@@ -99,11 +101,11 @@ code.
 
 Continuous variables only:
 
-<https://github.com/ZhiwenT/BCClong/blob/main/vignettes/ContinuousData.html>
+<https://htmlpreview.github.io/?https://github.com/ZhiwenT/BCClong/blob/main/vignettes/ContinuousData.html>
 
 Mixed type variables:
 
-<https://github.com/ZhiwenT/BCClong/blob/main/vignettes/MixedTypeData.html>
+<https://htmlpreview.github.io/?https://github.com/ZhiwenT/BCClong/blob/main/vignettes/MixedTypeData.html>
 
 ## Citation for Package
 
