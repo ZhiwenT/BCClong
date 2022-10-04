@@ -99,11 +99,11 @@ of data. Tutorial can also be found from the link below. Make sure to
 open the html file in browser, the github website only shows the source
 code.
 
-Continuous variables only:
+For multiple continuous longitudinal markers only:
 
 <https://htmlpreview.github.io/?https://github.com/ZhiwenT/BCClong/blob/main/vignettes/ContinuousData.html>
 
-Mixed type variables:
+For multiple mixed type longitudinal markers:
 
 <https://htmlpreview.github.io/?https://github.com/ZhiwenT/BCClong/blob/main/vignettes/MixedTypeData.html>
 
