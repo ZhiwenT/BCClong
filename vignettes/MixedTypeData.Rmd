@@ -72,9 +72,9 @@ dnew910.before$id.new <- id.new
 
 ## Fit BCC Model Using BCC.multi Function
 
-Here, We used a binomial distribution for spiders marker, and a Gaussian distribution for the lbili and lsgot marker, respectively. The number of clusters was setted to 2. For the hyper-parameters of the adherence parameters $\alpha_r$, we set $\delta_{1,r} = \delta_{2,r} = 1$ for $r = 1,2,3$ For the global clustering propertion $\pi$, we set $\varphi = (1,...,1)$ which reflects no priori information favouring one cluster over the other. For the fixed effect coefficients $\gamma_{k,r}$, we are setting the value to list(1,1,1). For random effect $\theta$, we are setting the value to list(1,1,1).
+Here, We used a binomial distribution for spiders marker, and a gaussian distribution for the lbili and lsgot marker, respectively. The number of clusters was set to 2. For the hyper-parameters of the adherence parameters $\alpha_r$, we set $\delta_{1,r} = \delta_{2,r} = 1$ for $r = 1,2,3$ For the global clustering proportion $\pi$, we set $\varphi = (1,...,1)$ which reflects no priori information favouring one cluster over the other. For the fixed effect coefficients $\gamma_{k,r}$, we are setting the value to list(1,1,1). For random effect $\theta$, we are setting the value to list(1,1,1).
 
-We ran the model with 12,000 iterations, discard the first 2,000 sample, and kept every 10th sample. This resulted in 1,000 samples for each model parameter. The MCMC sampling process tooks about 30 minutes on an AMD Ryzen$^{TM}$ 5 5600X desktop computer.
+We ran the model with 12,000 iterations, discard the first 2,000 sample, and kept every 10th sample. This resulted in 1,000 samples for each model parameter. The MCMC sampling process took about 30 minutes on an AMD Ryzen$^{TM}$ 5 5600X desktop computer.
 
 Since this program takes a long time to run, here we will use the pre-compile result in this example. The pre-compiled data file can be found here (`./inst/extdata/PBCseq.rds`)
 
@@ -129,7 +129,7 @@ fit.BCC$summary.stat$PPI
 
 To make a trace plot for PPI to inspect convergence 
 
-```{r, fig.height=5, fig.width=8, warning=F, message=F}
+```{r, fig.height=5, fig.width=8, warning=F, message=F, fig.cap="Figure 1. Inspect convergence"}
 num.sample <- (fit.BCC$max.iter -  fit.BCC$burn.in)/fit.BCC$thin # number of MCMC sample
 par(mfrow=c(1,2))
 plot(1:num.sample,fit.BCC$PPI[,1],type="l",col="blue" ,
@@ -142,7 +142,7 @@ plot(1:num.sample,fit.BCC$PPI[,2],type="l",col="blue" ,
 
 Same thing can be done for the adherence parameters alpha for each marker
 
-```{r, fig.height=5, fig.width=8, warning=F, message=F}
+```{r, fig.height=5, fig.width=8, warning=F, message=F, fig.cap="Figure 2. adherence parameters alpha for each marker"}
 fit.BCC$summary.stat$ALPHA
 
 # making a trace plot for alpha to inspect convergence 
@@ -162,13 +162,14 @@ plot(1:num.sample,fit.BCC$ALPHA[,3],type="l",col="blue" ,
 
 To plot the results, `ggplot2` and `cowplot` are used here. Other plotting methods can also be used, here is just an example. From the following code, we can get 6 plots for 3 markers, each marker has a plot for local clustering and a plot for global clustering. 
 
-```{r, fig.height=10, fig.width=8, warning=F, message=F}
+```{r, fig.height=15, fig.width=8, warning=F, message=F, fig.cap = "Figure 3. Local and global clustering"}
 dat <- fit.BCC$dat
 dat[[1]]$time.org <- dat[[1]]$time + mean(dnew910$month,na.rm=TRUE) # transform the time back to the original scale
 
 # For the first marker by local clustering
 dat[[1]]$cluster.local <- factor(dat[[1]]$cluster.local,label=c("Cluster 1","Cluster 2"))
 gp1 <- ggplot(data = dat[[1]], aes(x =time.org, y =y, color=cluster.local,linetype=cluster.local,fill=cluster.local))+
+  labs(caption = "Local clustering for lbili marker")+
   geom_point(size=2,alpha=0.2) +
   geom_line(aes(x = time.org, y = y,group=id,color=cluster.local),size=1.5,alpha=0.2)+ 
   geom_smooth(method = "loess", size = 3,se = FALSE,span=2) +
@@ -180,7 +181,7 @@ gp1 <- ggplot(data = dat[[1]], aes(x =time.org, y =y, color=cluster.local,linety
         plot.title = element_text(size = 16, face = "bold"),
         axis.text=element_text(size=16),
         axis.title=element_text(size=16),
-        legend.text=element_text(size=10),
+        legend.text=element_text(size=8),
         axis.text.x = element_text(angle = 0 ),
         strip.text.x = element_text(size = 16, angle = 0),
         strip.text.y = element_text(size = 16,face="bold")) +
@@ -192,6 +193,7 @@ dat[[2]]$cluster.local <- factor(dat[[2]]$cluster.local,label=c("Cluster 1","Clu
 dat[[2]]$time.org <- dat[[2]]$time + mean(dnew910$month,na.rm=TRUE) # transform the time back to the original scale
 
 gp2 <- ggplot(data = dat[[2]], aes(x =time.org, y =y, color=cluster.local,linetype=cluster.local,fill=cluster.local))+
+  labs(caption = "Local clustering for lsgot marker")+
   geom_point(size=2,alpha=0.2) +
   geom_line(aes(x = time.org, y = y,group=id,color=cluster.local),size=1.5,alpha=0.2)+ 
   geom_smooth(method = "loess", size = 3,se = FALSE,span=2) +
@@ -203,7 +205,7 @@ gp2 <- ggplot(data = dat[[2]], aes(x =time.org, y =y, color=cluster.local,linety
         plot.title = element_text(size = 16, face = "bold"),
         axis.text=element_text(size=16),
         axis.title=element_text(size=16),
-        legend.text=element_text(size=10),
+        legend.text=element_text(size=8),
         axis.text.x = element_text(angle = 0 ),
         strip.text.x = element_text(size = 16, angle = 0),
         strip.text.y = element_text(size = 16,face="bold")) +
@@ -214,6 +216,7 @@ dat[[3]]$cluster.local <- factor(dat[[3]]$cluster.local,label=c("Cluster 1","Clu
 dat[[3]]$time.org <- dat[[3]]$time + mean(dnew910$month,na.rm=TRUE) # transform the time back to the original scale
 
 gp3 <- ggplot(data = dat[[3]], aes(x =time.org, y =y, color=cluster.local,linetype=cluster.local,fill=cluster.local))+
+  labs(caption = "Local clustering for spiders marker")+
   geom_point(size=2,alpha=0.5) +
   geom_smooth(method = "loess", size = 3,se = FALSE,span=2) +
   geom_line(aes(x = time.org, y = y,group=id,color=cluster.local),size=1.5,alpha=0.2)+ 
@@ -225,7 +228,7 @@ gp3 <- ggplot(data = dat[[3]], aes(x =time.org, y =y, color=cluster.local,linety
         plot.title = element_text(size = 16, face = "bold"),
         axis.text=element_text(size=16),
         axis.title=element_text(size=16),
-        legend.text=element_text(size=10),
+        legend.text=element_text(size=8),
         axis.text.x = element_text(angle = 0 ),
         strip.text.x = element_text(size = 16, angle = 0),
         strip.text.y = element_text(size = 16,face="bold")) +
@@ -235,6 +238,7 @@ gp3 <- ggplot(data = dat[[3]], aes(x =time.org, y =y, color=cluster.local,linety
 # For the first marker by global(consensus) clustering
 dat[[1]]$cluster.global <- factor(dat[[1]]$cluster.global,label=c("Cluster 1","Cluster 2"))
 gp4 <- ggplot(data = dat[[1]], aes(x =time.org, y =y, color=cluster.global,linetype=cluster.global,fill=cluster.global))+
+  labs(caption = "Global clustering for lbili marker")+
   geom_point(size=2,alpha=0.2) +
   geom_line(aes(x = time.org, y = y,group=id,color=cluster.global),size=1.5,alpha=0.2)+ 
   geom_smooth(method = "loess", size = 3,se = FALSE,span=2) +
@@ -246,7 +250,7 @@ gp4 <- ggplot(data = dat[[1]], aes(x =time.org, y =y, color=cluster.global,linet
         plot.title = element_text(size = 16),
         axis.text=element_text(size=16),
         axis.title=element_text(size=16),
-        legend.text=element_text(size=10),
+        legend.text=element_text(size=8),
         axis.text.x = element_text(angle = 0 ),
         strip.text.x = element_text(size = 16, angle = 0),
         strip.text.y = element_text(size = 16,face="bold")) +
@@ -256,6 +260,7 @@ gp4 <- ggplot(data = dat[[1]], aes(x =time.org, y =y, color=cluster.global,linet
 # For the second marker by global(consensus) clustering
 dat[[2]]$cluster.global <- factor(dat[[2]]$cluster.global,label=c("Cluster 1","Cluster 2"))
 gp5 <- ggplot(data = dat[[2]], aes(x =time.org, y = y, color=cluster.global,linetype=cluster.global,fill=cluster.global))+
+  labs(caption = "Global clustering for lsgot marker")+
   geom_point(size=2,alpha=0.2) +
   geom_line(aes(x = time.org, y = y,group=id,color=cluster.global),size=1.5,alpha=0.2)+ 
   geom_smooth(method = "loess", size = 3,se = FALSE,span=2)+
@@ -267,14 +272,16 @@ gp5 <- ggplot(data = dat[[2]], aes(x =time.org, y = y, color=cluster.global,line
         plot.title = element_text(size = 16 ),
         axis.text=element_text(size=16),
         axis.title=element_text(size=16),
-        legend.text=element_text(size=10),
+        legend.text=element_text(size=8),
         axis.text.x = element_text(angle = 0 ),
         strip.text.x = element_text(size = 16, angle = 0),
-        strip.text.y = element_text(size = 16))  
+        strip.text.y = element_text(size = 16,face="bold"))+
+  guides(color=guide_legend(nrow=2,byrow=TRUE), linetype=guide_legend(nrow=2,byrow=TRUE),fill=guide_legend(nrow=2,byrow=TRUE))   
 
 # For the third marker by global(consensus) clustering
 dat[[3]]$cluster.global <- factor(dat[[3]]$cluster.global,label=c("Cluster 1","Cluster 2"))
 gp6 <- ggplot(data = dat[[3]], aes(x =time.org, y = y, color=cluster.global,linetype=cluster.global,fill=cluster.global))+
+  labs(caption = "Global clustering for spiders marker")+
   geom_point(size=2,alpha=0.2) +
   geom_line(aes(x = time.org, y = y,group=id,color=cluster.global),size=1.5,alpha=0.2)+ 
   geom_smooth(method = "loess", size = 3,se = FALSE,span=2)+
@@ -286,17 +293,18 @@ gp6 <- ggplot(data = dat[[3]], aes(x =time.org, y = y, color=cluster.global,line
         plot.title = element_text(size = 16),
         axis.text=element_text(size=16),
         axis.title=element_text(size=16),
-        legend.text=element_text(size=10),
+        legend.text=element_text(size=8),
         axis.text.x = element_text(angle = 0 ),
         strip.text.x = element_text(size = 16, angle = 0),
-        strip.text.y = element_text(size = 16,face="bold")) 
+        strip.text.y = element_text(size = 16,face="bold"))+
+  guides(color=guide_legend(nrow=2,byrow=TRUE), linetype=guide_legend(nrow=2,byrow=TRUE),fill=guide_legend(nrow=2,byrow=TRUE))  
 
 plot_grid(gp1,gp4,gp2, gp5,gp3,gp6, labels=c("(A)", "(B)", "(C)", "(D)", "(E)", "(F)" ), nrow = 3,   align = "v" )
 ```
 
 ## Survival Analysis After 910 Days
 
-```{r, fig.height=10, fig.width=10, warning=F, message=F}
+```{r, fig.height=15, fig.width=10, warning=F, message=F, fig.cap="Figure 4. Survival curve for global and local clustering"}
 # Making Kaplan–Meier (KM) for survival probability after 2.5 years
 library(survminer)
 library(survival)
@@ -320,8 +328,21 @@ dnew910_uq$cluster <- dnew910_uq$cluster.local1
 
 fit <- survfit(Surv(month, delta.death) ~  cluster,data = dnew910_uq, start.time=30.08)
 myplot[[1]] <- ggsurvplot(fit, data = dnew910_uq, risk.table = TRUE,pval=TRUE,conf.int = TRUE,
-                          pval.coord=c(40,0.2), xlab="months",title = expression(paste("lbili (",hat(alpha), " = 0.98 )", sep=""))) + 
-  guides(colour = guide_legend(nrow = 2))
+                          pval.coord=c(40,0.2), xlab="months",
+                          title = expression(paste("lbili (",
+                                                   hat(alpha), " = 0.98 )", 
+                                                   sep="")),
+                          ggtheme =  theme_bw() + 
+                                 theme(legend.position ="none",
+                                 legend.title=element_blank(),
+                                 plot.title = element_text(size = 15, face = "bold"),
+                                 legend.text=element_text(size=8),
+                                 axis.text=element_text(size=10),
+                                 axis.title=element_text(size=10),
+                                 strip.text.x = element_text(size=10),
+                                 strip.text.y = element_text(size=10))) + 
+  guides(colour = guide_legend(nrow = 2))+
+  labs(caption = "Survival curve for lbili marker local clustering")
 
 # KM Curve by local clustering for the second marker
 dat[[2]]$id.new <- dat[[2]]$id
@@ -332,8 +353,18 @@ dnew910_uq$cluster <- dnew910_uq$cluster.local2
 
 fit <- survfit(Surv(month, delta.death) ~  cluster,data = dnew910_uq,start.time=30.08)
 myplot[[2]] <- ggsurvplot(fit, data = dnew910_uq, risk.table = TRUE,pval=TRUE,conf.int = TRUE,
-                          pval.coord=c(40,0.2), xlab="months",title=expression(paste("lsgot (",hat(alpha), " = 0.79)", sep=""))) + 
-  guides(colour = guide_legend(nrow = 2))
+                          pval.coord=c(40,0.2), xlab="months",title=expression(paste("lsgot (",hat(alpha), " = 0.79)", sep="")),
+                          ggtheme =  theme_bw() + 
+                                 theme(legend.position ="none",
+                                 legend.title=element_blank(),
+                                 plot.title = element_text(size = 15, face = "bold"),
+                                 legend.text=element_text(size=8),
+                                 axis.text=element_text(size=10),
+                                 axis.title=element_text(size=10),
+                                 strip.text.x = element_text(size=10),
+                                 strip.text.y = element_text(size=10))) + 
+  guides(colour = guide_legend(nrow = 2))+
+  labs(caption = "Survival curve for lsgot marker local clustering")
 
 
 #-------------------------------------------------------------------#
@@ -345,8 +376,20 @@ dnew910_uq$cluster <- dnew910_uq$cluster.local3
 
 fit <- survfit(Surv(month, delta.death) ~  cluster,data = dnew910_uq,start.time=30.08)
 myplot[[3]] <- ggsurvplot(fit, data = dnew910_uq, risk.table = TRUE,pval=TRUE,
-                          conf.int = TRUE,pval.coord=c(40,0.2), xlab="months",title=expression(paste("spiders (",hat(alpha), " = 0.75)", sep=""))) + 
-  guides(colour = guide_legend(nrow = 2))
+                          conf.int = TRUE,pval.coord=c(40,0.2),
+                          xlab="months",
+                          title=expression(paste("spiders (",hat(alpha), " = 0.75)", sep="")),
+                          ggtheme =  theme_bw() + 
+                                 theme(legend.position ="none",
+                                 legend.title=element_blank(),
+                                 plot.title = element_text(size = 15, face = "bold"),
+                                 legend.text=element_text(size=8),
+                                 axis.text=element_text(size=10),
+                                 axis.title=element_text(size=10),
+                                 strip.text.x = element_text(size=10),
+                                 strip.text.y = element_text(size=10))) + 
+  guides(colour = guide_legend(nrow = 2))+
+  labs(caption = "Survival curve for spiders marker local clustering")
 
 #-------------------------------------------------------------------#
 dat <- data.frame(id.new= dat[[1]]$id,cluster.global = factor(dat[[1]]$cluster.global,label=c(1,2)))
@@ -356,11 +399,22 @@ dnew910_uq$cluster <- dnew910_uq$cluster.global
 
 fit <- survfit(Surv(month, delta.death) ~  cluster,data = dnew910_uq,start.time=30.08)
 myplot[[4]] <- ggsurvplot(fit, data = dnew910_uq, risk.table = TRUE,pval=TRUE,conf.int = TRUE,
-                          pval.coord=c(40,0.2), xlab="months",title="overall clusters") + 
-  guides(colour = guide_legend(nrow = 2))
+                          pval.coord=c(40,0.2), xlab="months",
+                          title="overall clusters", 
+                          ggtheme =  theme_bw() + 
+                                 theme(legend.position ="none",
+                                 legend.title=element_blank(),
+                                 plot.title = element_text(size = 15, face = "bold"),
+                                 legend.text=element_text(size=8),
+                                 axis.text=element_text(size=10),
+                                 axis.title=element_text(size=10),
+                                 strip.text.x = element_text(size=10),
+                                 strip.text.y = element_text(size=10))) + 
+  guides(colour = guide_legend(nrow = 2))+
+  labs(caption = "Survival curve for global clustering")
 
 # Arrange multiple ggsurvplots and print the output
-arrange_ggsurvplots(myplot, print = TRUE, ncol = 4, nrow = 1 )
+arrange_ggsurvplots(myplot, print = TRUE, ncol = 2, nrow = 2 )
 
 
 #--------------------------------------------------------------------------------#
