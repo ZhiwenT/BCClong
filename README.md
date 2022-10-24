@@ -124,6 +124,11 @@ and categorical longitudinal data. URL
     Multivariate Longitudinal Data. *Statistics in Medicine*, 41(1),
     108–127.](https://doi.org/10.1002/sim.9225)
 
+-   [Tan, Z., Shen, C., Subbarao, P., Lou, W. and Lu, Z., 2022. A Joint
+    Modeling Approach for Clustering Mixed-Type Multivariate
+    Longitudinal Data: Application to the CHILD Cohort Study. *arXiv
+    preprint*.](arXiv:2210.08385)
+
 ## Maintainer
 
 -   Zhiwen Tan (<z.tan@queensu.ca>).
