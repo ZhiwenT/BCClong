@@ -127,7 +127,7 @@ and categorical longitudinal data. URL
 -   [Tan, Z., Shen, C., Subbarao, P., Lou, W. and Lu, Z., 2022. A Joint
     Modeling Approach for Clustering Mixed-Type Multivariate
     Longitudinal Data: Application to the CHILD Cohort Study. *arXiv
-    preprint*.](arXiv:2210.08385)
+    preprint*.](https://doi.org/10.48550/arXiv.2210.08385)
 
 ## Maintainer
 
