@@ -83,7 +83,7 @@ Rcpp::List BCC (
     double vv0,
     arma::mat lambda0,
     std::vector<arma::cube> Lambda0,
-    
+
              Rcpp::RObject LOG_LIK_ITER,
              Rcpp::RObject PPI,
              Rcpp::RObject ZZ,
@@ -115,6 +115,7 @@ Rcpp::List BCC (
   b0.reshape(R, num_cluster);
   c0.reshape(R, num_cluster);
   d0.reshape(R, num_cluster);
+  c_gamma_tuning.reshape(R, num_cluster);
 
 #ifdef NORAND
   Rcpp::Function set_seed("set.seed");
@@ -202,7 +203,7 @@ Rcpp::List BCC (
           arma::rowvec ptc = pt.slice(r).row(i);
           arma::rowvec ptc_normed = ptc / arma::sum(ptc); // unlike R's internal rmultinom, Rcpp's rmultinom does not internally normalize distribution
 #ifdef NORAND
-          set_seed(seed_initial + iter + r+1 + i+1);          
+          set_seed(seed_initial + iter + r+1 + i+1);
 #endif
           rmultinom(1, ptc_normed.begin(), num_cluster, dist.begin());
 
@@ -217,7 +218,7 @@ Rcpp::List BCC (
 #endif
 
       // mean(zz.local[[3]]==simdata$cluster.local[[3]])
-      // table(zz.local[[3]],simdata$cluster.local[[3]]) 
+      // table(zz.local[[3]],simdata$cluster.local[[3]])
 
       //--------------------------------------------------------------#
       // Sample zz: overall clustering
@@ -296,7 +297,7 @@ Rcpp::List BCC (
 #ifdef DEBUG
     rst.push_back(alpha ,"alpha");
 #endif
-      
+
     //--------------------------------------------------------------#
     //  Sample pi
     //--------------------------------------------------------------#
@@ -350,15 +351,15 @@ Rcpp::List BCC (
           arma::rowvec eta = gamma_ * x.t() + beta[r].row(i) * Z.t();
           arma::rowvec mu;
           arma::mat kappa(x.n_rows, x.n_rows);
-          
+
           if (dist[r].compare("gaussian") == 0) {
             mu = eta;
             kappa.diag() += sigma_sq_e[r][k];
           } else if (dist[r].compare("poisson") == 0) {
-            mu = exp(eta);  
+            mu = exp(eta);
             kappa.diag() += exp(eta);
           } else if (dist[r].compare("binomial") == 0) {
-            mu = exp(eta)/(1+exp(eta)); 
+            mu = exp(eta)/(1+exp(eta));
             arma::rowvec p = exp(eta)/(1+exp(eta));
             kappa.diag() += p % (1-p); // element-wise product
           }
@@ -378,7 +379,7 @@ Rcpp::List BCC (
 #endif
     std::vector<arma::mat> gamma_new(gamma.size());
     for (arma::uword i = 0; i < gamma.size(); i++) gamma_new[i] = arma::mat(gamma[i]); // has the same structure as ga
-    
+
     std::vector<arma::cube> V_tid(R);
     std::vector<arma::mat>  v_tid(R);
     std::vector<arma::vec>  gamma_accept(R);
@@ -418,7 +419,7 @@ Rcpp::List BCC (
         arma::rowvec gamma_prop = Rcpp::as<arma::rowvec>(mvrnorm(
           Rcpp::_["n"]     = 1,
           Rcpp::_["mu"]    = v_tid[r].row(k),
-          Rcpp::_["Sigma"] = c_gamma_tuning(r,k)*V_tid[r].slice(k)));  //  proposed new values 
+          Rcpp::_["Sigma"] = c_gamma_tuning(r,k)*V_tid[r].slice(k)));  //  proposed new values
 #ifdef DEBUG
         gamma_props[r][k] = gamma_prop;
 #endif
@@ -427,7 +428,7 @@ Rcpp::List BCC (
 
         for (int i = 0; i < N; i++) {
           // TODO break unless zz_local(s,i)==j+1
-          
+
           arma::vec  in_i = arma::conv_to<arma::vec>::from(id==i+1); // c++ index begins from 0
           arma::uvec in_i_idx = find(in_i);
           arma::vec  t_in_i = t.elem(in_i_idx);
@@ -441,7 +442,7 @@ Rcpp::List BCC (
           arma::rowvec gamma_(gamma[r].row(k));
           gamma_prop_.resize(p[r]);
           gamma_     .resize(p[r]);
-          arma::rowvec eta_prop = gamma_prop_ * x.t() + beta[r].row(i) * Z.t();  
+          arma::rowvec eta_prop = gamma_prop_ * x.t() + beta[r].row(i) * Z.t();
           arma::rowvec eta      = gamma_      * x.t() + beta[r].row(i) * Z.t();
 #ifdef DEBUG
           g_props[r][k][i] = eta_prop;
@@ -452,10 +453,10 @@ Rcpp::List BCC (
                if (dist[r].compare("gaussian") == 0)   {q = 0.5*eta%eta;      q_prop = 0.5*eta_prop%eta_prop;}
           else if (dist[r].compare("poisson" ) == 0)   {q = exp(eta);         q_prop = exp(eta_prop);}
           else if (dist[r].compare("binomial") == 0)   {q = log(1+exp(eta));  q_prop = log(1+exp(eta_prop));}
-#ifdef DEBUG 
+#ifdef DEBUG
           gts     [r][k][i] = q;
           gt_props[r][k][i] = q_prop;
-#endif    
+#endif
           // to calculate the accept-reject function [targeted distribution]
           sum_tmp_prop += (zz_local(r,i)==k+1) * (dot(y_in_i, eta_prop) - arma::sum(q_prop));
           sum_tmp      += (zz_local(r,i)==k+1) * (dot(y_in_i, eta)      - arma::sum(q));
@@ -475,24 +476,24 @@ Rcpp::List BCC (
         double rr_prop = sum_tmp_prop - 0.5 * dot(gamma_prop     , arma::inv(V0[r].slice(k)) * gamma_prop.t());
         double rr      = sum_tmp      - 0.5 * dot(gamma[r].row(k), arma::inv(V0[r].slice(k)) * gamma[r].row(k).t());
 #ifdef DEBUG
-        rrs     [r][k] = rr;     
+        rrs     [r][k] = rr;
         rr_props[r][k] = rr_prop;
 #endif
         double aa      = std::min(1.0, exp(rr_prop-rr));
     //     if (iter %% per == 0 & print.info == "TRUE") {
-    //       cat(paste(rep('-',20),sep='',collapse=''), '\n'); 
-    //       cat("dist = ", dist[[s]] , "\n")  
-    //       cat(paste(rep('-',20),sep='',collapse=''), '\n'); 
-    //       cat("zz.local = ", table(zz.local[[s]]), "\n")  
-    //       cat("c.ga = ", c.ga[[s]], "\n")  
-    //       cat("omega0.tid = ", omega0.tid[[s]], "\n")  
-    //       cat("w0.tid = ", w0.tid[[s]], "\n")  
-    //       cat("rr.prop = ", rr.prop, "\n")  
-    //       cat("rr = ", rr, "\n")  
-    //       cat("myratio = ", myratio, "\n")  
+    //       cat(paste(rep('-',20),sep='',collapse=''), '\n');
+    //       cat("dist = ", dist[[s]] , "\n")
+    //       cat(paste(rep('-',20),sep='',collapse=''), '\n');
+    //       cat("zz.local = ", table(zz.local[[s]]), "\n")
+    //       cat("c.ga = ", c.ga[[s]], "\n")
+    //       cat("omega0.tid = ", omega0.tid[[s]], "\n")
+    //       cat("w0.tid = ", w0.tid[[s]], "\n")
+    //       cat("rr.prop = ", rr.prop, "\n")
+    //       cat("rr = ", rr, "\n")
+    //       cat("myratio = ", myratio, "\n")
     //       cat("aa = ", aa, "\n")
     //     }
-        
+
         if (isnan(aa)) {
           gamma_new[r].row(k) = gamma[r].row(k); gamma_accept[r].row(k) = 0;
         } else if (isinf(aa)) { // not possible since aa is at most 1.0
@@ -525,7 +526,7 @@ Rcpp::List BCC (
 #endif
 
     //-------------------------------------------------------------#
-    // Adding Order Constraint 
+    // Adding Order Constraint
     // Cluster with the smallest intercept will be the first group
     // Cluster with the largest intercept will be the last group
     //-------------------------------------------------------------#
@@ -591,7 +592,7 @@ Rcpp::List BCC (
 #endif
 
     //--------------------------------------------------------------#
-    // Sample random effects via  MH algorithm 
+    // Sample random effects via  MH algorithm
     //--------------------------------------------------------------#
 #ifdef DEBUG
     Rcpp::Rcout << "Sample random effects via  MH algorithm" << std::endl;
@@ -626,10 +627,10 @@ Rcpp::List BCC (
             mu = eta;
             kappa.diag() += sigma_sq_e[r][k];
           } else if (dist[r].compare("poisson") == 0) {
-            mu = exp(eta);  
+            mu = exp(eta);
             kappa.diag() += exp(eta);
           } else if (dist[r].compare("binomial") == 0) {
-            mu = exp(eta)/(1+exp(eta));  
+            mu = exp(eta)/(1+exp(eta));
             arma::rowvec p = exp(eta)/pow(1+exp(eta),2); // TODO why is there a square
             kappa.diag() += p % (1-p); // element-wise product
           }
@@ -649,7 +650,7 @@ Rcpp::List BCC (
 #endif
     std::vector<arma::mat> beta_new(R);
     for (int r = 0; r < R; r++) beta_new[r] = arma::mat(beta[r]); // has the same structure as beta
-    
+
     std::vector<arma::cube> Sigma_tid  (R);
     std::vector<arma::mat>  mu_tid     (R);
     std::vector<arma::vec>  beta_accept(R);
@@ -711,8 +712,8 @@ Rcpp::List BCC (
 
           arma::rowvec gamma_(gamma[r].row(k));
           gamma_.resize(p[r]);
-          arma::rowvec eta      = gamma_ * x.t() + beta[r].row(i) * Z.t();  
-          arma::rowvec eta_prop = gamma_ * x.t() + beta_prop      * Z.t();  
+          arma::rowvec eta      = gamma_ * x.t() + beta[r].row(i) * Z.t();
+          arma::rowvec eta_prop = gamma_ * x.t() + beta_prop      * Z.t();
 #ifdef DEBUG
           g_props2[r][i][k] = eta_prop;
           gs2     [r][i][k] = eta;
@@ -743,7 +744,7 @@ Rcpp::List BCC (
         double rr_prop = sum_tmp_prop - 0.5 * dot(beta_prop     , arma::inv(sigma_sq_u[r].slice(k-1)) * beta_prop.t());
         double rr      = sum_tmp      - 0.5 * dot(beta[r].row(i), arma::inv(sigma_sq_u[r].slice(k-1)) * beta[r].row(i).t());
 #ifdef DEBUG
-        rrs2     [r][i] = rr;     
+        rrs2     [r][i] = rr;
         rr_props2[r][i] = rr_prop;
 #endif
 
@@ -871,7 +872,7 @@ Rcpp::List BCC (
 #ifdef DEBUG
     rst.push_back(phi ,"phi");
 #endif
-    
+
     if (iter >= burn_in && iter % thin == 0) {
       //--------------------------------------------------------------------#
       // storing the sample;
@@ -888,18 +889,18 @@ Rcpp::List BCC (
         }
            GA_ACCEPT[r].row(count)   = gamma_accept[r].t();
         THETA_ACCEPT[r].row(count)   =  beta_accept[r].t();
-        THETA       [r].slice(count) =  beta       [r]; 
-        
+        THETA       [r].slice(count) =  beta       [r];
+
         Rcpp::Function matrix("matrix");
         if(sig_var) {
           Rcpp::Environment MCMCpack = Rcpp::Environment::namespace_env("MCMCpack");
           Rcpp::Function vech = MCMCpack["vech"];
           SIGMA_SQ_U[r] = abind(SIGMA_SQ_U[r],matrix(apply(sigma_sq_u[r],3,vech),Rcpp::_["ncol"]=num_cluster),Rcpp::_["along"] = 3);
-        } else { 
+        } else {
           Rcpp::Function diag("diag");
           SIGMA_SQ_U[r] = abind(SIGMA_SQ_U[r],matrix(apply(sigma_sq_u[r],3,diag),Rcpp::_["ncol"]=num_cluster),Rcpp::_["along"] = 3);
         }
-        
+
         if (num_cluster > 1) {T_LOCAL[r].slice(count) = pt.slice(r); }
         ZZ_LOCAL[r].row(count) = zz_local.row(r);
               GA[r]            = abind(GA[r], gamma[r],Rcpp::_["along"] = 3);
