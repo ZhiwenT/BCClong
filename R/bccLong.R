@@ -95,41 +95,72 @@ BCC.multi <- function(
       rr0    = 4,
       RR0    = 3
     ),
-    c.ga.tuning     = list(1,1,0.5),      # tuning parameter for MH algorithm (fixed effect parameters), each parameter corresponds to an outcome/marker
-    c.theta.tuning  = list(1,1,0.5),      # tuning parameter for MH algorithm (random effect), each parameter corresponds to an outcome/marker
+    c.ga.tuning     = list(1,1,1),      # tuning parameter for MH algorithm (fixed effect parameters), each parameter corresponds to an outcome/marker
+    c.theta.tuning  = list(1,1,1),      # tuning parameter for MH algorithm (random effect), each parameter corresponds to an outcome/marker
     adaptive.tuning = 1,                  # adaptive tuning parameters, 1 - yes, 0 - no
     align.clusters  = 1,                  # assign clusters
     tuning.freq     = 20,                 # tuning frequency
-    initial.cluster.membership = "PAM",        # "mixAK" or "random" or "PAM" or "input" - input initial cluster membership for local clustering
+    initial.cluster.membership = "random",        # "mixAK" or "random" or "PAM" or "input" - input initial cluster membership for local clustering
     input.initial.cluster.membership = NULL,   # if use "input", option input.initial.cluster.membership must not be empty
     initial.global.cluster.membership = NULL,  # input initial cluster membership for global clustering
     seed.initial    = 2080,               # seed for initial clustering (for initial.cluster.membership = "mixAK")
     print.info      = "TRUE",             # print model information at each iteration
     burn.in,                              # number of samples discarded
     thin,                                 # thinning
-    per,                                  # output information every "per" interation
+    per,                                  # output information every "per" interaction
     max.iter                              # maximum number of iteration
-  ) {
+) {
+
+
+  test <- 0
+  if (test==1){
+
+    mydat = list(dnew910.before$lbili,dnew910.before$lplatelet,dnew910.before$lsgot)
+    dist = c("gaussian","gaussian","gaussian")
+    id = list(dnew910.before$id.new,dnew910.before$id.new,dnew910.before$id.new)
+    time = list(dnew910.before$time,dnew910.before$time,dnew910.before$time)
+    formula =list(y ~ time +  (1|id),
+                  y ~ time +  (1|id),
+                  y ~ time +  (1|id))
+    num.cluster = 4
+    hyper.par  = list(delta=1,a.star=1,b.star=1,aa0=0.001, bb0=0.001, ww0=0,vv0=9, cc0=0.001, dd0=0.001,rr0=4,RR0=3)
+    sigma.sq.e.common = 1
+    c.ga.tuning = list(1,1,1)		    # tuning parameter for MH algorithm (fixed effect parameters), each parameter corresponds to an outcome/marker
+    c.theta.tuning = list(1,1,1)		# tuning parameter for MH algorithm (random effect), each parameter corresponds to an outcome/marker
+    adaptive.tuning = 0	      		# adaptive tuning parameters, 1 - yes, 0 - no
+    align.clusters=1		# assign clusters
+    alpha.common=0			# 1 - common alpha, 0 - separate alphas for each outcome
+    sig.var = 0				# 1 - unstructure random effect variance, 0 - diagonal random effect variance structure
+    initials= NULL		# initial values for model parameters
+    initial.cluster.membership = "random" # "mixAK" or "random"
+    print.info="FALSE"
+    burn.in = 10 			# number of samples discarded
+    thin = 1				# thinning
+    per = 1			# output information every "per" interation
+    max.iter = 20
+    tuning.freq     = 20
+    seed.initial    = 2080
+  }
 
   # removing NA values;
   R   <- length(mydat)
   dat <- vector(mode = "list", length = R)
   for (s in 1:R){
-       id[[s]] <-    id[[s]][is.na(mydat[[s]])==FALSE]
-     time[[s]] <-  time[[s]][is.na(mydat[[s]])==FALSE]
+    id[[s]] <-    id[[s]][is.na(mydat[[s]])==FALSE]
+    time[[s]] <-  time[[s]][is.na(mydat[[s]])==FALSE]
     mydat[[s]] <- mydat[[s]][is.na(mydat[[s]])==FALSE] # note the order, this line is last
-      dat[[s]] <- data.frame(cbind(
-                    y     = mydat[[s]],
-                    time  =  time[[s]],
-                    time2 =  time[[s]]^2,
-                    time3 =  time[[s]]^3,
-                    id    =    id[[s]]
-                  ))
+    dat[[s]] <- data.frame(cbind(
+      y     = mydat[[s]],
+      time  =  time[[s]],
+      time2 =  time[[s]]^2,
+      time3 =  time[[s]]^3,
+      id    =    id[[s]]
+    ))
   }
 
   n.obs <- lapply(id, function(x) as.vector(table(x)))
-  N     <- length(unique(id[[1]]))  # sample size should be identifcal across markers
-                                    # number of measurements and time points can be different
+  N     <- length(unique(id[[1]]))  # sample size should be identical across markers
+  # number of measurements and time points can be different
 
   #--------------------------------------------------------------#
   # starting values;
@@ -160,20 +191,20 @@ BCC.multi <- function(
         )
       )
     } else if (dist[[s]] == "binomial") {
-        fit.glmm <- glmer(
-          formula[[s]],
-          data    = dat[[s]],
-          nAGQ    = 0,
-          family  = binomial(link = "logit"),
-          control = glmerControl(
-            optimizer = "bobyqa",
-            optCtrl   = list(maxfun=2e5)
-          )
+      fit.glmm <- glmer(
+        formula[[s]],
+        data    = dat[[s]],
+        nAGQ    = 0,
+        family  = binomial(link = "logit"),
+        control = glmerControl(
+          optimizer = "bobyqa",
+          optCtrl   = list(maxfun=2e5)
         )
+      )
     }
-        k[[s]] <- length(fixef(fit.glmm))
+    k[[s]] <- length(fixef(fit.glmm))
     theta[[s]] <- cf * data.matrix(ranef(fit.glmm)$id)
-        K[[s]] <- dim(theta[[s]])[2]
+    K[[s]] <- dim(theta[[s]])[2]
   }
 
   if (length(initials) == 0) {        # use default initial values
@@ -242,7 +273,7 @@ BCC.multi <- function(
           my.cluster[[s]] <- apply(fit.mixAK[[1]]$poster.comp.prob, 1, which.max)
         }
       }
-      if (initial.cluster.membership == "PAM")    {my.cluster[[s]] <- cluster::pam(theta[[s]],num.cluster)$clustering}
+      # if (initial.cluster.membership == "PAM")    {my.cluster[[s]] <- cluster::pam(theta[[s]],num.cluster)$clustering}
       if (initial.cluster.membership == "random") {my.cluster[[s]] <- sample(1:num.cluster,N,replace=TRUE)}
       if (initial.cluster.membership == "input")  {my.cluster[[s]] <- input.initial.cluster.membership[[s]]}
 
@@ -302,8 +333,8 @@ BCC.multi <- function(
     # regression coeffcients
     ga <- fixed.effect
 
-    # for residual variance (for gussian distribution only)
-                                      sigma.sq.e      <- vector(mode = "list", length = R)
+    # for residual variance (for gaussian distribution only)
+    sigma.sq.e      <- vector(mode = "list", length = R)
     for (s in 1:R) {
       for (j in 1:num.cluster) {
         if (dist[[s]] == "gaussian")  sigma.sq.e[[s]] <- rbind(sigma.sq.e[[s]], 1)
@@ -313,7 +344,7 @@ BCC.multi <- function(
     }
 
     # dispersion parameters
-                                      phi      <- vector(mode = "list", length = R)
+    phi      <- vector(mode = "list", length = R)
     for (s in 1:R) {
       for (j in 1:num.cluster) {
         if (dist[[s]] == "gaussian")  phi[[s]] <- rbind(phi[[s]], sigma.sq.e[[s]][j])
@@ -323,15 +354,16 @@ BCC.multi <- function(
     }
 
     # starting values for random effect variance
-        sigma.sq.u               <- vector(mode = "list", length = R)
-        sigma.sq.u.inv           <- vector(mode = "list", length = R)
+    sigma.sq.u               <- vector(mode = "list", length = R)
+    sigma.sq.u.inv           <- vector(mode = "list", length = R)
 
     for (s in 1:R) {
-        sigma.sq.u    [[s]]      <- array(0, c(K[[s]], K[[s]], num.cluster))
-        sigma.sq.u.inv[[s]]      <- array(0, c(K[[s]], K[[s]], num.cluster))
+      sigma.sq.u    [[s]]      <- array(0, c(K[[s]], K[[s]], num.cluster))
+      sigma.sq.u.inv[[s]]      <- array(0, c(K[[s]], K[[s]], num.cluster))
       for (j in 1:num.cluster) {
         sigma.sq.u    [[s]][,,j] <- var(theta[[s]][my.cluster.tmp[,s]==j,1:K[[s]]]);
-        sigma.sq.u.inv[[s]][,,j] <- solve(sigma.sq.u[[s]][,,j]);
+        solve.tmp <- try(solve(sigma.sq.u[[s]][,,j]), silent=TRUE)
+        if (inherits(solve.tmp,"try-error")==FALSE)  {sigma.sq.u.inv[[s]][,,j] <- solve.tmp} else{sigma.sq.u.inv[[s]][,,j] <- 1e-5 }
       }
     }
   } else {  # use specified initials
@@ -342,7 +374,7 @@ BCC.multi <- function(
     sigma.sq.e <- initials$sigma.sq.e
 
     # dispersion parameters
-                                      phi      <- vector(mode = "list", length = R)
+    phi      <- vector(mode = "list", length = R)
     for (s in 1:R) {
       for (j in 1:num.cluster) {
         if (dist[[s]] == "gaussian")  phi[[s]] <- rbind(phi[[s]], sigma.sq.e[[s]][j])
@@ -351,10 +383,10 @@ BCC.multi <- function(
       }
     }
 
-        sigma.sq.u               <- initials$sigma.sq.u
-        sigma.sq.u.inv           <- vector(mode = "list", length = R)
+    sigma.sq.u               <- initials$sigma.sq.u
+    sigma.sq.u.inv           <- vector(mode = "list", length = R)
     for (s in 1:R) {
-        sigma.sq.u.inv[[s]]      <- array(0,c(K[[s]], K[[s]], num.cluster))
+      sigma.sq.u.inv[[s]]      <- array(0,c(K[[s]], K[[s]], num.cluster))
       for (j in 1:num.cluster) {
         sigma.sq.u.inv[[s]][,,j] <- solve(sigma.sq.u[[s]][,,j])
       }
@@ -384,7 +416,7 @@ BCC.multi <- function(
   #--------------------------------------------------------------#
   # Hyper-parameters for the Prior Distributions
   #--------------------------------------------------------------#
-  delta  <- hyper.par$delta
+  if (length(hyper.par$delta) == 1) {delta  <- rep(hyper.par$delta,num.cluster)} else{delta = hyper.par$delta}
   a.star <- hyper.par$a.star;  b.star <- hyper.par$b.star
   #---- hyper-parameters for the residual variances - common to both dataset
   aa0    <- hyper.par$aa0; bb0 <- hyper.par$bb0
@@ -407,11 +439,11 @@ BCC.multi <- function(
   R0     <- vector(mode = "list", length = R)
   for (s in 1:R) {
     for (j in 1:num.cluster) {
-           q      <- length(ga[[s]][j,])
-          w0[[s]] <- matrix(ww0, nrow=num.cluster, ncol=q)
+      q      <- length(ga[[s]][j,])
+      w0[[s]] <- matrix(ww0, nrow=num.cluster, ncol=q)
       omega0[[s]] <- array(diag(vv0,q), dim=c(q,q,num.cluster))
-          r0[[s]] <- rep(rr0, num.cluster)
-          R0[[s]] <- array(diag(RR0,K[[s]]), c(K[[s]],K[[s]],num.cluster))
+      r0[[s]] <- rep(rr0, num.cluster)
+      R0[[s]] <- array(diag(RR0,K[[s]]), c(K[[s]],K[[s]],num.cluster))
     }
   }
 
@@ -434,11 +466,11 @@ BCC.multi <- function(
   T.LOCAL      <- vector(mode = "list", length = R)
   T            <- NULL
   for (s in 1:R) {
-        ZZ.LOCAL[[s]] <- matrix(0, nrow=(max.iter-burn.in)/thin, ncol=N)
-      SIGMA.SQ.E[[s]] <- matrix(0, nrow=(max.iter-burn.in)/thin, ncol=num.cluster)
-           THETA[[s]] <-  array(0, c(N,K[[s]],      (max.iter-burn.in)/thin))
-         T.LOCAL[[s]] <-  array(0, c(N,num.cluster, (max.iter-burn.in)/thin))
-       GA.ACCEPT[[s]] <- matrix(0, nrow=(max.iter-burn.in)/thin, ncol=num.cluster)
+    ZZ.LOCAL[[s]] <- matrix(0, nrow=(max.iter-burn.in)/thin, ncol=N)
+    SIGMA.SQ.E[[s]] <- matrix(0, nrow=(max.iter-burn.in)/thin, ncol=num.cluster)
+    THETA[[s]] <-  array(0, c(N,K[[s]],      (max.iter-burn.in)/thin))
+    T.LOCAL[[s]] <-  array(0, c(N,num.cluster, (max.iter-burn.in)/thin))
+    GA.ACCEPT[[s]] <- matrix(0, nrow=(max.iter-burn.in)/thin, ncol=num.cluster)
     THETA.ACCEPT[[s]] <- matrix(0, nrow=(max.iter-burn.in)/thin, ncol=N)
   }
 
@@ -467,49 +499,49 @@ BCC.multi <- function(
       unlist(k), unlist(K),
       sig.var,
       # initials
-        ppi,
-        alpha,
-        zz,
-        t(simplify2array(zz.local)),
-        ga,
-        lapply(sigma.sq.e, function(x) {if (is.null(x)) {numeric()} else {x}}),
-        phi,
-        sigma.sq.u,
-        theta,
+      ppi,
+      alpha,
+      zz,
+      t(simplify2array(zz.local)),
+      ga,
+      lapply(sigma.sq.e, function(x) {if (is.null(x)) {numeric()} else {x}}),
+      phi,
+      sigma.sq.u,
+      theta,
       # Hyper-parameters
-        delta,
-        a.star,
-        b.star,
-        aa0,
-        bb0,
-        t(simplify2array(a0)),
-        t(simplify2array(b0)),
-        w0,
-        omega0,
-        cc0,
-        dd0,
-        t(simplify2array(c0)),
-        t(simplify2array(d0)),
-        rr0,
-        RR0,
-        ww0,
-        vv0,
-        t(simplify2array(r0)),
-        R0,
+      delta,
+      a.star,
+      b.star,
+      aa0,
+      bb0,
+      t(simplify2array(a0)),
+      t(simplify2array(b0)),
+      w0,
+      omega0,
+      cc0,
+      dd0,
+      t(simplify2array(c0)),
+      t(simplify2array(d0)),
+      rr0,
+      RR0,
+      ww0,
+      vv0,
+      t(simplify2array(r0)),
+      R0,
       # sample
-        LOG.LIK.ITER,
-        PPI,
-        ZZ,
-        ALPHA,
-        ZZ.LOCAL,
-        GA,
-        GA.ACCEPT,
-        THETA,
-        THETA.ACCEPT,
-        SIGMA.SQ.U,
-        SIGMA.SQ.E,
-        T.LOCAL,
-        T,
+      LOG.LIK.ITER,
+      PPI,
+      ZZ,
+      ALPHA,
+      ZZ.LOCAL,
+      GA,
+      GA.ACCEPT,
+      THETA,
+      THETA.ACCEPT,
+      SIGMA.SQ.U,
+      SIGMA.SQ.E,
+      T.LOCAL,
+      T,
       adaptive.tuning,
       tuning.freq,
       t(simplify2array(c.ga)),
@@ -598,8 +630,8 @@ BCC.multi <- function(
       for (j in 1:num.sample) {
         SIGMA.SQ.E[[s]][j,]  <- SIGMA.SQ.E[[s]][j, out.relabel.local[[s]][j,]     ]
         SIGMA.SQ.U[[s]][,,j] <- SIGMA.SQ.U[[s]][ , out.relabel.local[[s]][j,], j  ]
-                GA[[s]][,,j] <-         GA[[s]][   out.relabel.local[[s]][j,],  ,j]
-           T.LOCAL[[s]][,,j] <-    T.LOCAL[[s]][ , out.relabel.local[[s]][j,], j  ]
+        GA[[s]][,,j] <-         GA[[s]][   out.relabel.local[[s]][j,],  ,j]
+        T.LOCAL[[s]][,,j] <-    T.LOCAL[[s]][ , out.relabel.local[[s]][j,], j  ]
       }
     }
 
@@ -617,14 +649,14 @@ BCC.multi <- function(
     #--- adjusted adherance---
     my.alpha        <- apply(ALPHA,2,mean); my.alpha
     my.alpha.adjust <- (num.cluster*my.alpha - 1)/(num.cluster-1)
-       alpha.adjust <- mean(my.alpha.adjust)
+    alpha.adjust <- mean(my.alpha.adjust)
   }
   #-------------------------------------------------------------------------------------------#
   # Calculate Summary Statistics for Model Parameters (mean, sd, 95%CR and geweke statistics)
   #-------------------------------------------------------------------------------------------#
   res <- function(x) {c(mean=mean(x),sd=sd(x),quantile(x,c(0.025,0.975)), geweke.stat=as.vector(geweke.diag(x)$z[1]))}
-         PPI.stat <- apply(PPI,2,res)
-       ALPHA.stat <- apply(ALPHA,2,res)
+  PPI.stat <- apply(PPI,2,res)
+  ALPHA.stat <- apply(ALPHA,2,res)
   SIGMA.SQ.E.stat <- vector(mode = "list", length = R)
   SIGMA.SQ.U.stat <- vector(mode = "list", length = R)
   GA.stat <- vector(mode = "list", length = R)
@@ -632,8 +664,8 @@ BCC.multi <- function(
     if (dist[[s]] == "gaussian") {
       SIGMA.SQ.E.stat[[s]] <- apply(SIGMA.SQ.E[[s]], 2,      res)
     }
-      SIGMA.SQ.U.stat[[s]] <- apply(SIGMA.SQ.U[[s]], c(1,2), res)
-              GA.stat[[s]] <- apply(GA[[s]],         c(1,2), res)
+    SIGMA.SQ.U.stat[[s]] <- apply(SIGMA.SQ.U[[s]], c(1,2), res)
+    GA.stat[[s]] <- apply(GA[[s]],         c(1,2), res)
   }
   summary.stat <- list(
     PPI        = PPI.stat,
@@ -645,7 +677,7 @@ BCC.multi <- function(
 
   if (num.cluster == 1) {
     postprob <- cluster.global <- cluster.local <- PPI <- T <-
-    ALPHA <- my.alpha <- alpha.adjust <- THETA.ACCEPT <- GA.ACCEPT <-  NULL;
+      ALPHA <- my.alpha <- alpha.adjust <- THETA.ACCEPT <- GA.ACCEPT <-  NULL;
   }
   # returning the parameters;
   list(
