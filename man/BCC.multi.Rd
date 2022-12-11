@@ -17,12 +17,12 @@ BCC.multi(
   sigma.sq.e.common = 1,
   hyper.par = list(delta = 1, a.star = 1, b.star = 1, aa0 = 0.001, bb0 = 0.001, cc0 =
     0.001, ww0 = 0, vv0 = 1000, dd0 = 0.001, rr0 = 4, RR0 = 3),
-  c.ga.tuning = list(1, 1, 0.5),
-  c.theta.tuning = list(1, 1, 0.5),
+  c.ga.tuning = list(1, 1, 1),
+  c.theta.tuning = list(1, 1, 1),
   adaptive.tuning = 1,
   align.clusters = 1,
   tuning.freq = 20,
-  initial.cluster.membership = "PAM",
+  initial.cluster.membership = "random",
   input.initial.cluster.membership = NULL,
   initial.global.cluster.membership = NULL,
   seed.initial = 2080,
@@ -64,11 +64,11 @@ cc0 = 1e-3, ww0 = 0, vv0 = 1e3, dd0 = 1e-3, rr0 = 4, RR0 = 3}
 
 \item{c.ga.tuning}{tuning parameter for MH algorithm (fixed effect parameters),
 each parameter corresponds to an outcome/marker, default
-value equals list(1,1,0.5)}
+value equals list(1,1,1)}
 
 \item{c.theta.tuning}{tuning parameter for MH algorithm (random effect),
 each parameter corresponds to an outcome/marker,
-default value equals list(1,1,0.5)}
+default value equals list(1,1,1)}
 
 \item{adaptive.tuning}{adaptive tuning parameters, 1 - yes, 0 - no,
 default is 1}
@@ -79,7 +79,7 @@ default is 1}
 
 \item{initial.cluster.membership}{"mixAK" or "random" or "PAM" or "input" -
 input initial cluster membership for local
-clustering, default is "PAM"}
+clustering, default is "random"}
 
 \item{input.initial.cluster.membership}{if use "input",
 option input.initial.cluster.membership

@@ -25,17 +25,17 @@
 #'                  cc0 = 1e-3, ww0 = 0, vv0 = 1e3, dd0 = 1e-3, rr0 = 4, RR0 = 3
 #' @param c.ga.tuning tuning parameter for MH algorithm (fixed effect parameters),
 #'                    each parameter corresponds to an outcome/marker, default
-#'                    value equals list(1,1,0.5)
+#'                    value equals list(1,1,1)
 #' @param c.theta.tuning tuning parameter for MH algorithm (random effect),
 #'                       each parameter corresponds to an outcome/marker,
-#'                       default value equals list(1,1,0.5)
+#'                       default value equals list(1,1,1)
 #' @param adaptive.tuning adaptive tuning parameters, 1 - yes, 0 - no,
 #'                        default is 1
 #' @param align.clusters  assign clusters, default is 1
 #' @param tuning.freq     tuning frequency, default is 20
 #' @param initial.cluster.membership "mixAK" or "random" or "PAM" or "input" -
 #'                                  input initial cluster membership for local
-#'                                  clustering, default is "PAM"
+#'                                  clustering, default is "random"
 #' @param input.initial.cluster.membership if use "input",
 #'                                  option input.initial.cluster.membership
 #'                                  must not be empty, default is NULL
@@ -110,37 +110,6 @@ BCC.multi <- function(
     per,                                  # output information every "per" interaction
     max.iter                              # maximum number of iteration
 ) {
-
-
-  test <- 0
-  if (test==1){
-
-    mydat = list(dnew910.before$lbili,dnew910.before$lplatelet,dnew910.before$lsgot)
-    dist = c("gaussian","gaussian","gaussian")
-    id = list(dnew910.before$id.new,dnew910.before$id.new,dnew910.before$id.new)
-    time = list(dnew910.before$time,dnew910.before$time,dnew910.before$time)
-    formula =list(y ~ time +  (1|id),
-                  y ~ time +  (1|id),
-                  y ~ time +  (1|id))
-    num.cluster = 4
-    hyper.par  = list(delta=1,a.star=1,b.star=1,aa0=0.001, bb0=0.001, ww0=0,vv0=9, cc0=0.001, dd0=0.001,rr0=4,RR0=3)
-    sigma.sq.e.common = 1
-    c.ga.tuning = list(1,1,1)		    # tuning parameter for MH algorithm (fixed effect parameters), each parameter corresponds to an outcome/marker
-    c.theta.tuning = list(1,1,1)		# tuning parameter for MH algorithm (random effect), each parameter corresponds to an outcome/marker
-    adaptive.tuning = 0	      		# adaptive tuning parameters, 1 - yes, 0 - no
-    align.clusters=1		# assign clusters
-    alpha.common=0			# 1 - common alpha, 0 - separate alphas for each outcome
-    sig.var = 0				# 1 - unstructure random effect variance, 0 - diagonal random effect variance structure
-    initials= NULL		# initial values for model parameters
-    initial.cluster.membership = "random" # "mixAK" or "random"
-    print.info="FALSE"
-    burn.in = 10 			# number of samples discarded
-    thin = 1				# thinning
-    per = 1			# output information every "per" interation
-    max.iter = 20
-    tuning.freq     = 20
-    seed.initial    = 2080
-  }
 
   # removing NA values;
   R   <- length(mydat)
