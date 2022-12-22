@@ -6,12 +6,31 @@
 #'
 #'
 #'
-#' @param mydat List of R outcomes (R is the number of outcome, R>=2)
-#' @param id id-variable: starting from 1 to N
-#' @param time time variable
-#' @param num.cluster number of cluster
-#' @param formula fixed and random effect
-#' @param dist "gaussian","poisson","binomial", distribution of the outcome
+#' @param mydat list of R longitudinal features (i.e., with a length of R),
+#'              where R is the number of features. The data should be prepared
+#'              in a long-format (each row is one time point per individual).
+#' @param id a list (with a length of R) of vectors of the study id of
+#'           individuals for each feature. Single value (i.e., a length of 1)
+#'           is recycled if necessary
+#' @param time a list (with a length of R) of vectors of time (or age) at which
+#'             the feature measurements are recorded
+#' @param center 1: center the time variable before clustering, 0: no centering
+#' @param num.cluster number of clusters K
+#' @param formula a list (with a length of R) of formula for each feature.
+#'                Each formula is a twosided linear formula object describing
+#'                both the fixed-effects and random effects part of the model,
+#'                with the response (i.e., longitudinal feature) on the left
+#'                of a ~ operator and the terms, separated by + operations,
+#'                or the right. Random-effects terms are distinguished by
+#'                vertical bars (|) separating expressions for design matrices
+#'                from grouping factors.
+#'                See formula argument from the lme4 package
+#' @param dist a character vector (with a length of R) that determines the
+#'             distribution for each feature. Possible values are "gaussian"
+#'             for a continuous feature, "poisson" for a discrete feature
+#'             (e.g., count data) using a log link and "binomial" for a
+#'             dichotomous feature (0/1) using a logit link. Single value
+#'             (i.e., a length of 1) is recycled if necessary
 #' @param alpha.common 1 - common alpha, 0 - separate alphas for each outcome
 #' @param initials List of initials for: zz, zz.local ga, sigma.sq.u, sigma.sq.e,
 #'                 Default is NULL
@@ -20,19 +39,18 @@
 #'                default is 0
 #' @param sigma.sq.e.common 1 - estimate common residual variance across all groups,
 #'                          0 - estimate distinct residual variance, default is 1
-#' @param hyper.par Hyper parameter contains a list of variables includes
-#'                  delta  = 1, a.star = 1, b.star = 1, aa0  = 1e-3, bb0 = 1e-3,
-#'                  cc0 = 1e-3, ww0 = 0, vv0 = 1e3, dd0 = 1e-3, rr0 = 4, RR0 = 3
-#' @param c.ga.tuning tuning parameter for MH algorithm (fixed effect parameters),
+#' @param hyper.par hyper-parameters of the prior distributions for the model
+#'                  parameters. The default hyper-parameters values will result
+#'                  in weakly informative prior distributions.
+#' @param c.ga.tunning tuning parameter for MH algorithm (fixed effect parameters),
 #'                    each parameter corresponds to an outcome/marker, default
-#'                    value equals list(1,1,1)
-#' @param c.theta.tuning tuning parameter for MH algorithm (random effect),
+#'                    value equals NULL
+#' @param c.theta.tunning tuning parameter for MH algorithm (random effect),
 #'                       each parameter corresponds to an outcome/marker,
-#'                       default value equals list(1,1,1)
-#' @param adaptive.tuning adaptive tuning parameters, 1 - yes, 0 - no,
+#'                       default value equals NULL
+#' @param adaptive.tunning adaptive tuning parameters, 1 - yes, 0 - no,
 #'                        default is 1
-#' @param align.clusters  assign clusters, default is 1
-#' @param tuning.freq     tuning frequency, default is 20
+#' @param tunning.freq     tuning frequency, default is 20
 #' @param initial.cluster.membership "mixAK" or "random" or "PAM" or "input" -
 #'                                  input initial cluster membership for local
 #'                                  clustering, default is "random"
@@ -46,10 +64,12 @@
 #'                    (for initial.cluster.membership = "mixAK")
 #'                    default is 2080
 #' @param print.info print model information at each iteration, default is true
-#' @param burn.in number of samples discarded
-#' @param thin thinning
-#' @param per output information every "per" iteration
-#' @param max.iter maximum number of iteration
+#' @param burn.in the number of samples disgarded.
+#'                This value must be smaller than max.iter.
+#' @param thin the number of thinning. For example, if thin = 10,
+#'             then the MCMC chain will keep one sample every 10 iterations
+#' @param per specify how often the MCMC chain will print the iteration number
+#' @param max.iter the number of MCMC iterations.
 #'
 #'
 #' @return Returns a model contains clustering information
@@ -75,12 +95,13 @@ BCC.multi <- function(
     mydat,                 # List of R outcomes (R is the number of outcome, R>=2)
     id,                    # id-variable: starting from 1 to N
     time,                  # time variable
+    center=1,              # 1 - center the time variable before clustering, 0 - no centering
     num.cluster,           # number of cluster
     formula,               # fixed and random effect
-    dist,                  # "gaussian","poisson","binomial", distribution of the outcome
-    alpha.common,          # 1 - common alpha, 0 - separate alphas for each outcome
+    dist,                  # "gaussian","poisson","binomial", distribution of the marker
+    sig.var = 0,
+    alpha.common = 0,          # 1 - common alpha, 0 - separate alphas for each marker
     initials = NULL,       # List of initials for: zz, zz.local ga, sigma.sq.u, sigma.sq.e,
-    sig.var  = 0,          # 1 - unstructure random effect variance, 0 - diagonal random effect variance structure
     sigma.sq.e.common = 1, # 1 - estimate common residual variance across all groups, 0 - estimate distinct residual variance
     hyper.par = list(
       delta  = 1,
@@ -95,12 +116,11 @@ BCC.multi <- function(
       rr0    = 4,
       RR0    = 3
     ),
-    c.ga.tuning     = list(1,1,1),      # tuning parameter for MH algorithm (fixed effect parameters), each parameter corresponds to an outcome/marker
-    c.theta.tuning  = list(1,1,1),      # tuning parameter for MH algorithm (random effect), each parameter corresponds to an outcome/marker
-    adaptive.tuning = 1,                  # adaptive tuning parameters, 1 - yes, 0 - no
-    align.clusters  = 1,                  # assign clusters
-    tuning.freq     = 20,                 # tuning frequency
-    initial.cluster.membership = "random",        # "mixAK" or "random" or "PAM" or "input" - input initial cluster membership for local clustering
+    c.ga.tunning     = NULL,      # tunning parameter for MH algorithm (fixed effect parameters), each parameter corresponds to an outcome/marker
+    c.theta.tunning  = NULL,      # tunning parameter for MH algorithm (random effect), each parameter corresponds to an outcome/marker
+    adaptive.tunning = 0,                  # adaptive tunning parameters, 1 - yes, 0 - no
+    tunning.freq     = 20,                 # tunning frequency
+    initial.cluster.membership = "random",        # "mixAK" or "random" or "input" - input initial cluster membership for local clustering
     input.initial.cluster.membership = NULL,   # if use "input", option input.initial.cluster.membership must not be empty
     initial.global.cluster.membership = NULL,  # input initial cluster membership for global clustering
     seed.initial    = 2080,               # seed for initial clustering (for initial.cluster.membership = "mixAK")
@@ -111,25 +131,64 @@ BCC.multi <- function(
     max.iter                              # maximum number of iteration
 ) {
 
+  #-------------------------------------------------------------------------------------#
+  # Set up
+  create.new.id <- function(input_id){
+    # Create new ID from 1 to N;
+    subj <- unique(input_id)
+    N <- length(subj)
+    id.new <- NULL
+    for (i in 1:N) {id.new   <- c(id.new,rep(i,length(input_id[input_id==subj[i]])))}
+    return(id.new)}
+  #-------------------------------------------------------------------------------------#
+
+  R <- length(mydat)
+  if (length(dist)==1) dist = rep(dist,R)
+  if (length(id)==1) id = rep(id,R)
+  if (length(time)==1) time = rep(time,R)
+  if (length(formula)==1) formula = rep(formula,R)
+  if (is.null(c.ga.tunning)==TRUE)  c.ga.tunning <- rep(list(1),R)
+  if (is.null(c.theta.tunning)==TRUE)  c.theta.tunning <- rep(list(1),R)
+
   # removing NA values;
-  R   <- length(mydat)
   dat <- vector(mode = "list", length = R)
+  time.org <-  vector(mode = "list", length = R)
   for (s in 1:R){
     id[[s]] <-    id[[s]][is.na(mydat[[s]])==FALSE]
-    time[[s]] <-  time[[s]][is.na(mydat[[s]])==FALSE]
+    time.org[[s]] <-  time[[s]][is.na(mydat[[s]])==FALSE]
+    if (center==1){ time[[s]] <-  time[[s]][is.na(mydat[[s]])==FALSE]; time[[s]] <- time[[s]] - mean(time[[s]]) }
     mydat[[s]] <- mydat[[s]][is.na(mydat[[s]])==FALSE] # note the order, this line is last
+  }
+
+  # Find common id
+  # (require each individual has at least one observation for all markers)
+  common.id <- NULL
+  for (s in 1:R){
+    if (s==1)  common.id <- unique(id[[s]]) else{
+      common.id <- Reduce(intersect,list(common.id, unique(id[[s]])))}}
+  common.id <- common.id[is.na(common.id)==FALSE]
+  N <- length(common.id); N 			# number of individuals included in the analysis
+
+  #---------------------------------------------#
+  id.org <-  vector(mode = "list", length = R)
+  id.new <-  vector(mode = "list", length = R)
+  for (s in 1:R){
+    id.org[[s]] <-    id[[s]][id[[s]] %in% common.id]; length(id.org[[1]])
+    id.new[[s]] <- create.new.id(id.org[[s]]); length(id.new[[1]])
+    time.org[[s]] <-  time.org[[s]][id[[s]] %in% common.id]; length(time.org[[1]])
+    time[[s]] <-  time[[s]][id[[s]] %in% common.id]; length(time[[1]])
+    mydat[[s]] <- mydat[[s]][id[[s]] %in% common.id]  # note the order, this line is last
     dat[[s]] <- data.frame(cbind(
       y     = mydat[[s]],
+      time.org  =  time.org[[s]],
       time  =  time[[s]],
       time2 =  time[[s]]^2,
       time3 =  time[[s]]^3,
-      id    =    id[[s]]
-    ))
+      id.org    = id.org[[s]],
+      id    = id.new[[s]]))
   }
 
-  n.obs <- lapply(id, function(x) as.vector(table(x)))
-  N     <- length(unique(id[[1]]))  # sample size should be identical across markers
-  # number of measurements and time points can be different
+  n.obs <- lapply(id.org, function(x) as.vector(table(x)))  # number of measurements and time points can be different
 
   #--------------------------------------------------------------#
   # starting values;
@@ -177,13 +236,11 @@ BCC.multi <- function(
   }
 
   if (length(initials) == 0) {        # use default initial values
-    # For local cluster membership (outcome-specific) - use PAM method to initialize
     my.cluster     <- vector(mode = "list", length = R)
     my.cluster.tmp <- NULL
     for (s in 1:R) {
       if (initial.cluster.membership == "mixAK") {
         if (dist[[s]] == "gaussian") {
-          #my.cluster[[s]] <- cluster::pam(theta[[s]], num.cluster)$clustering
           set.seed(seed.initial)
           fit.mixAK <- mixAK::GLMM_MCMC(
             y                = dat[[s]][,"y"],
@@ -193,13 +250,13 @@ BCC.multi <- function(
             random.intercept = c(TRUE),
             prior.b          = list(Kmax = num.cluster),
             parallel         = TRUE
-            # ,silent = TRUE
+            ,silent = TRUE
           )
           fit.mixAK <- NMixRelabel(
             fit.mixAK,
             type           = "stephens",
             keep.comp.prob = TRUE
-            # ,silent = TRUE
+            ,silent = TRUE
           )
           my.cluster[[s]] <- apply(fit.mixAK[[1]]$poster.comp.prob, 1, which.max)
         } else if (dist[[s]] == "poisson") {
@@ -212,13 +269,13 @@ BCC.multi <- function(
             random.intercept = c(TRUE),
             prior.b          = list(Kmax = num.cluster),
             parallel         = TRUE
-            # ,silent = TRUE
+            ,silent = TRUE
           )
           fit.mixAK <- NMixRelabel(
             fit.mixAK,
             type           = "stephens",
             keep.comp.prob = TRUE
-            # ,silent = TRUE
+            ,silent = TRUE
           )
           my.cluster[[s]] <- apply(fit.mixAK[[1]]$poster.comp.prob, 1, which.max)
         } else if (dist[[s]] == "binomial") {
@@ -231,18 +288,17 @@ BCC.multi <- function(
             random.intercept = c(TRUE),
             prior.b          = list(Kmax = num.cluster),
             parallel         = TRUE
-            # ,silent = TRUE
+            ,silent = TRUE
           )
           fit.mixAK <- NMixRelabel(
             fit.mixAK,
             type           = "stephens",
             keep.comp.prob = TRUE
-            # ,silent = TRUE
+            ,silent = TRUE
           )
           my.cluster[[s]] <- apply(fit.mixAK[[1]]$poster.comp.prob, 1, which.max)
         }
       }
-      # if (initial.cluster.membership == "PAM")    {my.cluster[[s]] <- cluster::pam(theta[[s]],num.cluster)$clustering}
       if (initial.cluster.membership == "random") {my.cluster[[s]] <- sample(1:num.cluster,N,replace=TRUE)}
       if (initial.cluster.membership == "input")  {my.cluster[[s]] <- input.initial.cluster.membership[[s]]}
 
@@ -289,14 +345,7 @@ BCC.multi <- function(
 
     alpha    <- rep(0.9,R)
     # initial cluster membership
-    # initial cluster membership
     if (length(initial.global.cluster.membership)==0)  {zz <-  my.cluster[[1]]}  else{zz <- initial.global.cluster.membership }
-
-    #zz       <- my.cluster[[1]]            # can use lcmm here
-    #zz.local <- vector(mode = "list", length = R)
-    #for (s in 1:R) {
-    #  zz.local[[s]] <- my.cluster[[s]]
-    #}
     zz.local <- my.cluster
 
     # regression coeffcients
@@ -361,7 +410,7 @@ BCC.multi <- function(
       }
     }
 
-    # Here theta over-write the previous assigned values, if initials are given
+    # Here theta over-write the previously assigned values, if initials are given
     theta <- vector(mode = "list", length = R)
     for (s in 1:R) {
       theta[[s]] <- matrix(0, ncol=K[[s]], nrow=N)
@@ -375,19 +424,18 @@ BCC.multi <- function(
 
   }
 
-
   ppi <- rep(1/num.cluster,num.cluster)    # for overall clustering
   # complete initial values to pass to Cpp function
   initials.complete <- list(ppi=ppi, alpha=alpha, zz=zz, zz.local=zz.local,
                             ga=ga, sigma.sq.e=sigma.sq.e,sigma.sq.u=sigma.sq.u,
                             theta=theta);
-  #mean(zz.local[[3]]==simdata$cluster.local[[3]])
+
   #--------------------------------------------------------------#
   # Hyper-parameters for the Prior Distributions
   #--------------------------------------------------------------#
   if (length(hyper.par$delta) == 1) {delta  <- rep(hyper.par$delta,num.cluster)} else{delta = hyper.par$delta}
   a.star <- hyper.par$a.star;  b.star <- hyper.par$b.star
-  #---- hyper-parameters for the residual variances - common to both dataset
+  #---- hyper-parameters for the residual variances - common to both datasets
   aa0    <- hyper.par$aa0; bb0 <- hyper.par$bb0
   a0     <- rep(list(rep(aa0,num.cluster)),R)
   b0     <- rep(list(rep(bb0,num.cluster)),R)
@@ -444,18 +492,17 @@ BCC.multi <- function(
   }
 
   cat(paste(rep('-',60),sep='',collapse=''), '\n'); cat(paste(rep('-',60),sep='',collapse=''), '\n');
-  cat('Running BCC Model (GLM)', '\n')
+  cat('Running BCC Model', '\n')
   cat(paste(rep('-',60),sep='',collapse=''), '\n'); cat(paste(rep('-',60),sep='',collapse=''), '\n');
 
   c.ga <- vector(mode = "list", length = R)
   for (s in 1:R) {
-    c.ga[[s]] <- rep(c.ga.tuning[[s]],num.cluster)
+    c.ga[[s]] <- rep(c.ga.tunning[[s]],num.cluster)
   }
-  c.theta <- c.theta.tuning
+  c.theta <- c.theta.tunning
 
   begin <- proc.time()[1]
-
-  #sourceCpp("src/BCC.cpp")
+  #sourceCpp("BCC.cpp")
   tryCatch({
     rst = BCC(
       dat, R,
@@ -464,7 +511,6 @@ BCC.multi <- function(
       dist,
       alpha.common,
       sigma.sq.e.common,
-      align.clusters,
       unlist(k), unlist(K),
       sig.var,
       # initials
@@ -511,8 +557,8 @@ BCC.multi <- function(
       SIGMA.SQ.E,
       T.LOCAL,
       T,
-      adaptive.tuning,
-      tuning.freq,
+      adaptive.tunning,
+      tunning.freq,
       t(simplify2array(c.ga)),
       unlist(c.theta),
       burn.in,
@@ -535,7 +581,7 @@ BCC.multi <- function(
 
   rst$PPI   <- matrix(rst$PPI,   ncol=num.cluster, byrow=TRUE)
   rst$ZZ    <- matrix(rst$ZZ,    ncol=N,           byrow=TRUE)
-  rst$ALPHA <- matrix(rst$ALPHA, ncol=R,           byrow=TRUE)
+  if(num.cluster > 1) rst$ALPHA <- matrix(rst$ALPHA, ncol=R, byrow=TRUE) else{rst$ALPHA <- matrix(rst$ALPHA, ncol=1, byrow=TRUE);}
   for (s in 1:R) {
     rst$SIGMA.SQ.E  [[s]] <- matrix(rst$SIGMA.SQ.E  [[s]],ncol=num.cluster)
     rst$GA.ACCEPT   [[s]] <- matrix(rst$GA.ACCEPT   [[s]],ncol=num.cluster)
@@ -581,7 +627,7 @@ BCC.multi <- function(
     tp  <- cbind(tp1,tp2)
     tp[,1:num.cluster] <- tp[,1:num.cluster]/tp[,(num.cluster+1)]  # standardize
     postprob <- apply(tp[,1:num.cluster],1,max)
-    #hist(postprob)
+
 
     # for local cluster membership
     T.LOCAL.trans     <- vector(mode = "list", length = R)
@@ -592,9 +638,7 @@ BCC.multi <- function(
       out.relabel.local[[s]] <- label.switching(method="STEPHENS",z=ZZ.LOCAL[[s]],K=num.cluster,p=T.LOCAL.trans[[s]])$permutations$STEPHENS
     }
 
-    # s
-    # table(ZZ.LOCAL[[s]])
-    # Post-processing the parameters according to swicthing label
+    # Post-processing the parameters according to the switching label
     for (s in 1:R){
       for (j in 1:num.sample) {
         SIGMA.SQ.E[[s]][j,]  <- SIGMA.SQ.E[[s]][j, out.relabel.local[[s]][j,]     ]
@@ -604,18 +648,16 @@ BCC.multi <- function(
       }
     }
 
-    # table(ZZ.LOCAL[[s]])
-
     # Compute the global and local cluster membership
     cluster.global <- apply(apply(T,c(1,2),mean),1,nnet::which.is.max)
     cluster.local  <- vector(mode = "list", length = R)
     for (s in 1:R) {
       cluster.local[[s]] <- apply(apply(T.LOCAL[[s]],c(1,2),mean),1,nnet::which.is.max)
-      mycluster <- data.frame(id=unique(id[[s]]),cluster.global=cluster.global,cluster.local=cluster.local[[s]])
+      mycluster <- data.frame(id=1:N,cluster.global=cluster.global,cluster.local=cluster.local[[s]])
       dat[[s]] <- merge(dat[[s]],mycluster,by="id")
     }
 
-    #--- adjusted adherance---
+    #--- adjusted adherence---
     my.alpha        <- apply(ALPHA,2,mean); my.alpha
     my.alpha.adjust <- (num.cluster*my.alpha - 1)/(num.cluster-1)
     alpha.adjust <- mean(my.alpha.adjust)
@@ -642,7 +684,7 @@ BCC.multi <- function(
     GA         = GA.stat,
     SIGMA.SQ.U = SIGMA.SQ.U.stat,
     SIGMA.SQ.E = SIGMA.SQ.E.stat)
-  summary.stat
+  #summary.stat
 
   if (num.cluster == 1) {
     postprob <- cluster.global <- cluster.local <- PPI <- T <-
@@ -675,44 +717,11 @@ BCC.multi <- function(
     dist           = dist,
     num.cluster    = num.cluster,
     THETA          = THETA,
-    #tot.num.par   = tot.num.par,
     max.iter       = max.iter,
     burn.in        = burn.in,
     thin           = thin,
     run.time       = run.time,
     summary.stat   = summary.stat)
-}
-
-
-
-# - AlignCllusters function - adapted from the codes of BCC original paper (Lock and Dunson 2013)
-# currently unused function
-AlignClusters <- function(Z1,Z2, type = 'vec') {
-  if(type == 'vec') {
-    for(k in 1:length(unique(Z1))) {
-      Max = sum(Z1==k & Z2==k)/(.01+sum(Z2==k)+sum(Z1==k));
-      for(tempk in  1:length(unique(Z2))) {
-        if(sum(Z1==k & Z2==tempk)/(.01+sum(Z2==tempk)+sum(Z1==k)) > Max) {
-          Max           = sum(Z1==k &Z2==tempk)/(.01+sum(Z2==tempk)+sum(Z1==k))
-          dummy         = Z2==k
-          Z2[Z2==tempk] = k
-          Z2[dummy]     = tempk
-        }
-      }
-    }
-  } else if(type == 'mat') {
-    for(k in 1:dim(Z1)[2]) {
-      for(tempk in  1:dim(Z2)[2]) {
-        Max             = sum(Z1==Z2)
-        Z2dummy         = Z2
-        Z2dummy[,k]     = Z2[,tempk]
-        Z2dummy[,tempk] = Z2[,k]
-        if(sum(Z1==Z2dummy)>Max)
-          Z2 = Z2dummy
-      }
-    }
-  }
-  return(Z2)
 }
 
 #library(compiler)

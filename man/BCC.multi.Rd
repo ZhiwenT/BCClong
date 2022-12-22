@@ -8,20 +8,20 @@ BCC.multi(
   mydat,
   id,
   time,
+  center = 1,
   num.cluster,
   formula,
   dist,
-  alpha.common,
-  initials = NULL,
   sig.var = 0,
+  alpha.common = 0,
+  initials = NULL,
   sigma.sq.e.common = 1,
   hyper.par = list(delta = 1, a.star = 1, b.star = 1, aa0 = 0.001, bb0 = 0.001, cc0 =
     0.001, ww0 = 0, vv0 = 1000, dd0 = 0.001, rr0 = 4, RR0 = 3),
-  c.ga.tuning = list(1, 1, 1),
-  c.theta.tuning = list(1, 1, 1),
-  adaptive.tuning = 1,
-  align.clusters = 1,
-  tuning.freq = 20,
+  c.ga.tunning = NULL,
+  c.theta.tunning = NULL,
+  adaptive.tunning = 0,
+  tunning.freq = 20,
   initial.cluster.membership = "random",
   input.initial.cluster.membership = NULL,
   initial.global.cluster.membership = NULL,
@@ -34,48 +34,66 @@ BCC.multi(
 )
 }
 \arguments{
-\item{mydat}{List of R outcomes (R is the number of outcome, R>=2)}
+\item{mydat}{list of R longitudinal features (i.e., with a length of R),
+where R is the number of features. The data should be prepared
+in a long-format (each row is one time point per individual).}
 
-\item{id}{id-variable: starting from 1 to N}
+\item{id}{a list (with a length of R) of vectors of the study id of
+individuals for each feature. Single value (i.e., a length of 1)
+is recycled if necessary}
 
-\item{time}{time variable}
+\item{time}{a list (with a length of R) of vectors of time (or age) at which
+the feature measurements are recorded}
 
-\item{num.cluster}{number of cluster}
+\item{center}{1: center the time variable before clustering, 0: no centering}
 
-\item{formula}{fixed and random effect}
+\item{num.cluster}{number of clusters K}
 
-\item{dist}{"gaussian","poisson","binomial", distribution of the outcome}
+\item{formula}{a list (with a length of R) of formula for each feature.
+Each formula is a twosided linear formula object describing
+both the fixed-effects and random effects part of the model,
+with the response (i.e., longitudinal feature) on the left
+of a ~ operator and the terms, separated by + operations,
+or the right. Random-effects terms are distinguished by
+vertical bars (|) separating expressions for design matrices
+from grouping factors.
+See formula argument from the lme4 package}
+
+\item{dist}{a character vector (with a length of R) that determines the
+distribution for each feature. Possible values are "gaussian"
+for a continuous feature, "poisson" for a discrete feature
+(e.g., count data) using a log link and "binomial" for a
+dichotomous feature (0/1) using a logit link. Single value
+(i.e., a length of 1) is recycled if necessary}
+
+\item{sig.var}{1 - unstructure random effect variance,
+0 - diagonal random effect variance structure,
+default is 0}
 
 \item{alpha.common}{1 - common alpha, 0 - separate alphas for each outcome}
 
 \item{initials}{List of initials for: zz, zz.local ga, sigma.sq.u, sigma.sq.e,
 Default is NULL}
 
-\item{sig.var}{1 - unstructure random effect variance,
-0 - diagonal random effect variance structure,
-default is 0}
-
 \item{sigma.sq.e.common}{1 - estimate common residual variance across all groups,
 0 - estimate distinct residual variance, default is 1}
 
-\item{hyper.par}{Hyper parameter contains a list of variables includes
-delta  = 1, a.star = 1, b.star = 1, aa0  = 1e-3, bb0 = 1e-3,
-cc0 = 1e-3, ww0 = 0, vv0 = 1e3, dd0 = 1e-3, rr0 = 4, RR0 = 3}
+\item{hyper.par}{hyper-parameters of the prior distributions for the model
+parameters. The default hyper-parameters values will result
+in weakly informative prior distributions.}
 
-\item{c.ga.tuning}{tuning parameter for MH algorithm (fixed effect parameters),
+\item{c.ga.tunning}{tuning parameter for MH algorithm (fixed effect parameters),
 each parameter corresponds to an outcome/marker, default
-value equals list(1,1,1)}
+value equals NULL}
 
-\item{c.theta.tuning}{tuning parameter for MH algorithm (random effect),
+\item{c.theta.tunning}{tuning parameter for MH algorithm (random effect),
 each parameter corresponds to an outcome/marker,
-default value equals list(1,1,1)}
+default value equals NULL}
 
-\item{adaptive.tuning}{adaptive tuning parameters, 1 - yes, 0 - no,
+\item{adaptive.tunning}{adaptive tuning parameters, 1 - yes, 0 - no,
 default is 1}
 
-\item{align.clusters}{assign clusters, default is 1}
-
-\item{tuning.freq}{tuning frequency, default is 20}
+\item{tunning.freq}{tuning frequency, default is 20}
 
 \item{initial.cluster.membership}{"mixAK" or "random" or "PAM" or "input" -
 input initial cluster membership for local
@@ -95,13 +113,15 @@ default is 2080}
 
 \item{print.info}{print model information at each iteration, default is true}
 
-\item{burn.in}{number of samples discarded}
+\item{burn.in}{the number of samples disgarded.
+This value must be smaller than max.iter.}
 
-\item{thin}{thinning}
+\item{thin}{the number of thinning. For example, if thin = 10,
+then the MCMC chain will keep one sample every 10 iterations}
 
-\item{per}{output information every "per" iteration}
+\item{per}{specify how often the MCMC chain will print the iteration number}
 
-\item{max.iter}{maximum number of iteration}
+\item{max.iter}{the number of MCMC iterations.}
 }
 \value{
 Returns a model contains clustering information

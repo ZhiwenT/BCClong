@@ -1,7 +1,7 @@
 Package: BCClong
 Type: Package
 Title: What the Package Does (Title Case)
-Version: 0.1.0
+Version: 1.0.0
 Authors@R: person("Z", "Tan", email = "21zt9@queensu.ca", role = c("aut", "cre"))
 Maintainer: Zhiwen Tan <21zt9@queensu.ca>
 Description: More about what it does (maybe more than one line)
@@ -14,8 +14,12 @@ RoxygenNote: 7.2.1
 Imports: 
     cluster,
     coda,
+    ggplot2,
+    graphics,
     label.switching,
+    LaplacesDemon,
     lme4,
+    MASS,
     mclust,
     MCMCpack,
     mixAK,
@@ -29,7 +33,6 @@ LinkingTo: Rcpp, RcppArmadillo
 Suggests: 
     knitr,
     rmarkdown,
-    ggplot2,
     cowplot,
     joineRML,
     survival,

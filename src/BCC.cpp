@@ -7,49 +7,19 @@
 // #define DEBUG
 //#define NORAND
 
-// - AlignCllusters function - adapted from the codes of BCC original paper (Lock and Dunson 2013)
-arma::rowvec AlignClusters (arma::rowvec Z1, arma::rowvec Z2, std::string type = "vec") {
-  // if (type.compare("vec") == 0) {
-    arma::rowvec uniq1 = unique(Z1);
-    arma::rowvec uniq2 = unique(Z2);
-    for (arma::uword k = 0; k < uniq1.size(); k++) {
-      double Max = arma::sum(Z1==k && Z2==k)/(.01+arma::sum(Z2==k)+arma::sum(Z1==k));
-      for(arma::uword tempk = 0; tempk < uniq2.size(); tempk++) {
-        if(arma::sum(Z1==k && Z2==tempk)/(.01+arma::sum(Z2==tempk)+arma::sum(Z1==k)) > Max) {
-          Max                 = arma::sum(Z1==k && Z2==tempk)/(.01+arma::sum(Z2==tempk)+arma::sum(Z1==k));
-          arma::urowvec dummy = Z2==k;
-          Z2.elem(Z2==tempk) *= 0;
-          Z2.elem(Z2==tempk) += k;
-          Z2.elem(dummy)     *= 0;
-          Z2.elem(dummy)     += tempk;
-        }
-      }
-    }
-  // currently not being used
-  // } else if(type.compare("mat") == 0) {
-  //   for(int k = 0; k < dim(Z1)[2]; k++) {
-  //     for(tempk in  1:dim(Z2)[2]) {
-  //       Max             = sum(Z1==Z2)
-  //       Z2dummy         = Z2
-  //       Z2dummy[,k]     = Z2[,tempk]
-  //       Z2dummy[,tempk] = Z2[,k]
-  //       if(sum(Z1==Z2dummy)>Max)
-  //         Z2 = Z2dummy
-  //     }
-  //   }
-  // }
-  return Z2;
-}
+
 
 // [[Rcpp::export()]]
 Rcpp::List BCC (
-    Rcpp::List dat, int R,
-    Rcpp::List id, arma::umat n_obs, int N,
+    Rcpp::List &dat,
+    int R,
+    Rcpp::List id,
+    arma::umat n_obs,
+    int N,
     int num_cluster,
     std::vector<std::string> dist,
     bool alpha_common,
     bool sigma_sq_e_common,
-    bool align_clusters,
     arma::vec p,
     arma::vec q,
     bool sig_var,
@@ -83,11 +53,11 @@ Rcpp::List BCC (
     double vv0,
     arma::mat lambda0,
     std::vector<arma::cube> Lambda0,
-    
-             Rcpp::RObject LOG_LIK_ITER,
-             Rcpp::RObject PPI,
-             Rcpp::RObject ZZ,
-             Rcpp::RObject ALPHA,
+
+    Rcpp::RObject LOG_LIK_ITER,
+    Rcpp::RObject PPI,
+    Rcpp::RObject ZZ,
+    Rcpp::RObject ALPHA,
     std::vector<arma::mat> ZZ_LOCAL,
     std::vector<Rcpp::RObject> GA,
     std::vector<arma::mat> GA_ACCEPT,
@@ -96,26 +66,26 @@ Rcpp::List BCC (
     std::vector<Rcpp::RObject> SIGMA_SQ_U,
     std::vector<arma::mat> SIGMA_SQ_E,
     std::vector<arma::cube> T_LOCAL,
-             Rcpp::RObject T,
+    Rcpp::RObject T,
 
-    bool adaptive_tuning,
-    double tuning_freq,
-    arma::mat c_gamma_tuning,
-    arma::vec c_beta_tuning,
+    bool adaptive_tunning,
+    double tunning_freq,
+    arma::mat c_gamma_tunning,
+    arma::vec c_beta_tunning,
 
     int burn_in,
     int thin,
     int per,
     int max_iter,
     int seed_initial
-  ) {
+) {
   Rcpp::Rcout << "Cpp begins" << std::endl ;
 
   a0.reshape(R, num_cluster);
   b0.reshape(R, num_cluster);
   c0.reshape(R, num_cluster);
   d0.reshape(R, num_cluster);
-  c_gamma_tuning.reshape(R, num_cluster);
+  c_gamma_tunning.reshape(R, num_cluster);
 
 
 #ifdef NORAND
@@ -139,7 +109,7 @@ Rcpp::List BCC (
 
   while(1) {
     //--------------------------------------------------------------#
-    // Sample outcome-specific cluster membership
+    // Sample marker-specific cluster membership
     //--------------------------------------------------------------#
 #ifdef DEBUG
     Rcpp::Rcout << "Sample outcome-specific cluster membership" << std::endl;
@@ -204,25 +174,22 @@ Rcpp::List BCC (
           arma::rowvec ptc = pt.slice(r).row(i);
           arma::rowvec ptc_normed = ptc / arma::sum(ptc); // unlike R's internal rmultinom, Rcpp's rmultinom does not internally normalize distribution
 #ifdef NORAND
-          set_seed(seed_initial + iter + r+1 + i+1);          
+          set_seed(seed_initial + iter + r+1 + i+1);
 #endif
           rmultinom(1, ptc_normed.begin(), num_cluster, dist.begin());
 
           zz_local(r, i) = dist.index_max() + 1; // R index starts from 1
         }
-        if (align_clusters) {
-          zz_local.row(r) = AlignClusters(zz.t(), zz_local.row(r), "vec");
-        }
+        //if (align_clusters) {
+        //  zz_local.row(r) = AlignClusters(zz.t(), zz_local.row(r), "vec");
+        //}
       }
 #ifdef DEBUG
       rst.push_back(zz_local ,"zz.local");
 #endif
 
-      // mean(zz.local[[3]]==simdata$cluster.local[[3]])
-      // table(zz.local[[3]],simdata$cluster.local[[3]]) 
-
       //--------------------------------------------------------------#
-      // Sample zz: overall clustering
+      // Sample zz: global cluster membership
       //--------------------------------------------------------------#
 #ifdef DEBUG
       Rcpp::Rcout << "Sample zz: overall clustering" << std::endl;
@@ -255,7 +222,7 @@ Rcpp::List BCC (
 #endif
 
     //--------------------------------------------------------------#
-    //  Sample alpha
+    //  Sample alpha (adherence parameter)
     //--------------------------------------------------------------#
 #ifdef DEBUG
     Rcpp::Rcout << "Sample alpha" << std::endl;
@@ -264,41 +231,41 @@ Rcpp::List BCC (
     set_seed(seed_initial+iter);
 #endif
     if (R > 1 && num_cluster > 1) {
-        Rcpp::Environment truncdist = Rcpp::Environment::namespace_env("truncdist");
-        Rcpp::Function rtrunc = truncdist["rtrunc"];
-        Rcpp::NumericVector tau = Rcpp::no_init(zz_local.n_rows);
-        for (arma::uword i = 0; i < zz_local.n_rows; i++) {
-          arma::rowvec row = zz_local.row(i);
-          tau(i) = arma::sum(row.t() == zz);
+      Rcpp::Environment truncdist = Rcpp::Environment::namespace_env("truncdist");
+      Rcpp::Function rtrunc = truncdist["rtrunc"];
+      Rcpp::NumericVector tau = Rcpp::no_init(zz_local.n_rows);
+      for (arma::uword i = 0; i < zz_local.n_rows; i++) {
+        arma::rowvec row = zz_local.row(i);
+        tau(i) = arma::sum(row.t() == zz);
+      }
+      if (alpha_common == 1) {
+        int tau_sum = sum(tau);
+        alpha   = arma::vec(R,
+                            *REAL(rtrunc(1,
+                                         Rcpp::_["spec"]   = "beta",
+                                         Rcpp::_["a"]      = 1.0/num_cluster,
+                                         Rcpp::_["b"]      = 1,
+                                         Rcpp::_["shape1"] = a_star       + tau_sum,
+                                         Rcpp::_["shape2"] = b_star + N*R - tau_sum
+                            )));
+      } else {
+        for (int r = 0; r < R; r++) {
+          alpha[r] = *REAL(rtrunc(1,
+                                  Rcpp::_["spec"]   = "beta",
+                                  Rcpp::_["a"]      = 1.0/num_cluster,
+                                  Rcpp::_["b"]      = 1,
+                                  Rcpp::_["shape1"] = a_star     + tau[r],
+                                                                      Rcpp::_["shape2"] = b_star + N - tau[r]
+          ));
         }
-        if (alpha_common == 1) {
-          int tau_sum = sum(tau);
-          alpha   = arma::vec(R,
-                              *REAL(rtrunc(1,
-                                          Rcpp::_["spec"]   = "beta",
-                                          Rcpp::_["a"]      = 1.0/num_cluster,
-                                          Rcpp::_["b"]      = 1,
-                                          Rcpp::_["shape1"] = a_star       + tau_sum,
-                                          Rcpp::_["shape2"] = b_star + N*R - tau_sum
-                              )));
-        } else {
-          for (int r = 0; r < R; r++) {
-            alpha[r] = *REAL(rtrunc(1,
-                                    Rcpp::_["spec"]   = "beta",
-                                    Rcpp::_["a"]      = 1.0/num_cluster,
-                                    Rcpp::_["b"]      = 1,
-                                    Rcpp::_["shape1"] = a_star     + tau[r],
-                                    Rcpp::_["shape2"] = b_star + N - tau[r]
-                                  ));
-          }
-        }
+      }
     } else {
       alpha = 1;
     }
 #ifdef DEBUG
     rst.push_back(alpha ,"alpha");
 #endif
-      
+
     //--------------------------------------------------------------#
     //  Sample pi
     //--------------------------------------------------------------#
@@ -352,15 +319,15 @@ Rcpp::List BCC (
           arma::rowvec eta = gamma_ * x.t() + beta[r].row(i) * Z.t();
           arma::rowvec mu;
           arma::mat kappa(x.n_rows, x.n_rows);
-          
+
           if (dist[r].compare("gaussian") == 0) {
             mu = eta;
             kappa.diag() += sigma_sq_e[r][k];
           } else if (dist[r].compare("poisson") == 0) {
-            mu = exp(eta);  
+            mu = exp(eta);
             kappa.diag() += exp(eta);
           } else if (dist[r].compare("binomial") == 0) {
-            mu = exp(eta)/(1+exp(eta)); 
+            mu = exp(eta)/(1+exp(eta));
             arma::rowvec p = exp(eta)/(1+exp(eta));
             kappa.diag() += p % (1-p); // element-wise product
           }
@@ -380,7 +347,7 @@ Rcpp::List BCC (
 #endif
     std::vector<arma::mat> gamma_new(gamma.size());
     for (arma::uword i = 0; i < gamma.size(); i++) gamma_new[i] = arma::mat(gamma[i]); // has the same structure as ga
-    
+
     std::vector<arma::cube> V_tid(R);
     std::vector<arma::mat>  v_tid(R);
     std::vector<arma::vec>  gamma_accept(R);
@@ -401,8 +368,8 @@ Rcpp::List BCC (
 #endif
     for (int r = 0; r < R; r++) {
       gamma_accept[r] = arma::vec(num_cluster);
-             V_tid[r] = arma::cube(p[r],p[r], num_cluster);
-             v_tid[r] = arma::mat(num_cluster, p[r]);
+      V_tid[r] = arma::cube(p[r],p[r], num_cluster);
+      v_tid[r] = arma::mat(num_cluster, p[r]);
       arma::vec       y = ((Rcpp::DataFrame)dat(r))["y"];
       arma::vec       t = ((Rcpp::DataFrame)dat(r))["time"];
       arma::vec      id = ((Rcpp::DataFrame)dat(r))["id"];
@@ -420,7 +387,7 @@ Rcpp::List BCC (
         arma::rowvec gamma_prop = Rcpp::as<arma::rowvec>(mvrnorm(
           Rcpp::_["n"]     = 1,
           Rcpp::_["mu"]    = v_tid[r].row(k),
-          Rcpp::_["Sigma"] = c_gamma_tuning(r,k)*V_tid[r].slice(k)));  //  proposed new values 
+          Rcpp::_["Sigma"] = c_gamma_tunning(r,k)*V_tid[r].slice(k)));  //  proposed new values
 #ifdef DEBUG
         gamma_props[r][k] = gamma_prop;
 #endif
@@ -429,7 +396,7 @@ Rcpp::List BCC (
 
         for (int i = 0; i < N; i++) {
           // TODO break unless zz_local(s,i)==j+1
-          
+
           arma::vec  in_i = arma::conv_to<arma::vec>::from(id==i+1); // c++ index begins from 0
           arma::uvec in_i_idx = find(in_i);
           arma::vec  t_in_i = t.elem(in_i_idx);
@@ -443,7 +410,7 @@ Rcpp::List BCC (
           arma::rowvec gamma_(gamma[r].row(k));
           gamma_prop_.resize(p[r]);
           gamma_     .resize(p[r]);
-          arma::rowvec eta_prop = gamma_prop_ * x.t() + beta[r].row(i) * Z.t();  
+          arma::rowvec eta_prop = gamma_prop_ * x.t() + beta[r].row(i) * Z.t();
           arma::rowvec eta      = gamma_      * x.t() + beta[r].row(i) * Z.t();
 #ifdef DEBUG
           g_props[r][k][i] = eta_prop;
@@ -451,13 +418,13 @@ Rcpp::List BCC (
 #endif
           arma::rowvec q;
           arma::rowvec q_prop;
-               if (dist[r].compare("gaussian") == 0)   {q = 0.5*eta%eta;      q_prop = 0.5*eta_prop%eta_prop;}
+          if (dist[r].compare("gaussian") == 0)   {q = 0.5*eta%eta;      q_prop = 0.5*eta_prop%eta_prop;}
           else if (dist[r].compare("poisson" ) == 0)   {q = exp(eta);         q_prop = exp(eta_prop);}
           else if (dist[r].compare("binomial") == 0)   {q = log(1+exp(eta));  q_prop = log(1+exp(eta_prop));}
-#ifdef DEBUG 
+#ifdef DEBUG
           gts     [r][k][i] = q;
           gt_props[r][k][i] = q_prop;
-#endif    
+#endif
           // to calculate the accept-reject function [targeted distribution]
           sum_tmp_prop += (zz_local(r,i)==k+1) * (dot(y_in_i, eta_prop) - arma::sum(q_prop));
           sum_tmp      += (zz_local(r,i)==k+1) * (dot(y_in_i, eta)      - arma::sum(q));
@@ -477,24 +444,24 @@ Rcpp::List BCC (
         double rr_prop = sum_tmp_prop - 0.5 * dot(gamma_prop     , arma::inv(V0[r].slice(k)) * gamma_prop.t());
         double rr      = sum_tmp      - 0.5 * dot(gamma[r].row(k), arma::inv(V0[r].slice(k)) * gamma[r].row(k).t());
 #ifdef DEBUG
-        rrs     [r][k] = rr;     
+        rrs     [r][k] = rr;
         rr_props[r][k] = rr_prop;
 #endif
         double aa      = std::min(1.0, exp(rr_prop-rr));
-    //     if (iter %% per == 0 & print.info == "TRUE") {
-    //       cat(paste(rep('-',20),sep='',collapse=''), '\n'); 
-    //       cat("dist = ", dist[[s]] , "\n")  
-    //       cat(paste(rep('-',20),sep='',collapse=''), '\n'); 
-    //       cat("zz.local = ", table(zz.local[[s]]), "\n")  
-    //       cat("c.ga = ", c.ga[[s]], "\n")  
-    //       cat("omega0.tid = ", omega0.tid[[s]], "\n")  
-    //       cat("w0.tid = ", w0.tid[[s]], "\n")  
-    //       cat("rr.prop = ", rr.prop, "\n")  
-    //       cat("rr = ", rr, "\n")  
-    //       cat("myratio = ", myratio, "\n")  
-    //       cat("aa = ", aa, "\n")
-    //     }
-        
+        //     if (iter %% per == 0 & print.info == "TRUE") {
+        //       cat(paste(rep('-',20),sep='',collapse=''), '\n');
+        //       cat("dist = ", dist[[s]] , "\n")
+        //       cat(paste(rep('-',20),sep='',collapse=''), '\n');
+        //       cat("zz.local = ", table(zz.local[[s]]), "\n")
+        //       cat("c.ga = ", c.ga[[s]], "\n")
+        //       cat("omega0.tid = ", omega0.tid[[s]], "\n")
+        //       cat("w0.tid = ", w0.tid[[s]], "\n")
+        //       cat("rr.prop = ", rr.prop, "\n")
+        //       cat("rr = ", rr, "\n")
+        //       cat("myratio = ", myratio, "\n")
+        //       cat("aa = ", aa, "\n")
+        //     }
+
         if (isnan(aa)) {
           gamma_new[r].row(k) = gamma[r].row(k); gamma_accept[r].row(k) = 0;
         } else if (isinf(aa)) { // not possible since aa is at most 1.0
@@ -527,7 +494,7 @@ Rcpp::List BCC (
 #endif
 
     //-------------------------------------------------------------#
-    // Adding Order Constraint 
+    // Adding Order Constraint
     // Cluster with the smallest intercept will be the first group
     // Cluster with the largest intercept will be the last group
     //-------------------------------------------------------------#
@@ -558,8 +525,8 @@ Rcpp::List BCC (
         Rcpp::Function rWishart("rWishart");
         for (int k = 0; k < num_cluster; k++) {
           sigma_sq_u_inv[r].slice(k) = Rcpp::as<arma::mat>(rWishart(1,
-            arma::mat(1,1,arma::fill::value(sum(zz_local.row(r)==k+1) + lambda0(r,k))),
-            arma::inv(Lambda_tid[r].slice(k))));
+                                                           arma::mat(1,1,arma::fill::value(sum(zz_local.row(r)==k+1) + lambda0(r,k))),
+                                                           arma::inv(Lambda_tid[r].slice(k))));
           sigma_sq_u[r].slice(k) = arma::inv(sigma_sq_u_inv[r].slice(k));
         }
       }
@@ -593,7 +560,7 @@ Rcpp::List BCC (
 #endif
 
     //--------------------------------------------------------------#
-    // Sample random effects via  MH algorithm 
+    // Sample random effects via  MH algorithm
     //--------------------------------------------------------------#
 #ifdef DEBUG
     Rcpp::Rcout << "Sample random effects via  MH algorithm" << std::endl;
@@ -628,10 +595,10 @@ Rcpp::List BCC (
             mu = eta;
             kappa.diag() += sigma_sq_e[r][k];
           } else if (dist[r].compare("poisson") == 0) {
-            mu = exp(eta);  
+            mu = exp(eta);
             kappa.diag() += exp(eta);
           } else if (dist[r].compare("binomial") == 0) {
-            mu = exp(eta)/(1+exp(eta));  
+            mu = exp(eta)/(1+exp(eta));
             arma::rowvec p = exp(eta)/pow(1+exp(eta),2); // TODO why is there a square
             kappa.diag() += p % (1-p); // element-wise product
           }
@@ -651,7 +618,7 @@ Rcpp::List BCC (
 #endif
     std::vector<arma::mat> beta_new(R);
     for (int r = 0; r < R; r++) beta_new[r] = arma::mat(beta[r]); // has the same structure as beta
-    
+
     std::vector<arma::cube> Sigma_tid  (R);
     std::vector<arma::mat>  mu_tid     (R);
     std::vector<arma::vec>  beta_accept(R);
@@ -672,8 +639,8 @@ Rcpp::List BCC (
 #endif
     for (int r = 0; r < R; r++) {
       beta_accept[r] = arma::vec(N);
-        Sigma_tid[r] = arma::cube(q[r],q[r],num_cluster);
-           mu_tid[r] = arma::mat(num_cluster, q[r]);
+      Sigma_tid[r] = arma::cube(q[r],q[r],num_cluster);
+      mu_tid[r] = arma::mat(num_cluster, q[r]);
       arma::vec       y = ((Rcpp::DataFrame)dat(r))["y"];
       arma::vec       t = ((Rcpp::DataFrame)dat(r))["time"];
       arma::vec      id = ((Rcpp::DataFrame)dat(r))["id"];
@@ -697,7 +664,7 @@ Rcpp::List BCC (
           beta_prop = Rcpp::as<arma::rowvec>(mvrnorm(
             Rcpp::_["n"]     = 1,
             Rcpp::_["mu"]    = mu_tid[r].row(k),
-            Rcpp::_["Sigma"] = c_beta_tuning[r] * Sigma_tid[r].slice(k)));  //  proposed new values
+            Rcpp::_["Sigma"] = c_beta_tunning[r] * Sigma_tid[r].slice(k)));  //  proposed new values
 #ifdef DEBUG
           beta_props[r][i][k] = beta_prop;
 #endif
@@ -713,8 +680,8 @@ Rcpp::List BCC (
 
           arma::rowvec gamma_(gamma[r].row(k));
           gamma_.resize(p[r]);
-          arma::rowvec eta      = gamma_ * x.t() + beta[r].row(i) * Z.t();  
-          arma::rowvec eta_prop = gamma_ * x.t() + beta_prop      * Z.t();  
+          arma::rowvec eta      = gamma_ * x.t() + beta[r].row(i) * Z.t();
+          arma::rowvec eta_prop = gamma_ * x.t() + beta_prop      * Z.t();
 #ifdef DEBUG
           g_props2[r][i][k] = eta_prop;
           gs2     [r][i][k] = eta;
@@ -722,7 +689,7 @@ Rcpp::List BCC (
 
           arma::rowvec q;
           arma::rowvec q_prop;
-               if (dist[r].compare("gaussian") == 0)   {q = 0.5*eta%eta;     q_prop = 0.5*eta_prop%eta_prop;}
+          if (dist[r].compare("gaussian") == 0)   {q = 0.5*eta%eta;     q_prop = 0.5*eta_prop%eta_prop;}
           else if (dist[r].compare("poisson" ) == 0)   {q = exp(eta);        q_prop = exp(eta_prop);}
           else if (dist[r].compare("binomial") == 0)   {q = log(1+exp(eta)); q_prop = log(1+exp(eta_prop));}
 #ifdef DEBUG
@@ -745,7 +712,7 @@ Rcpp::List BCC (
         double rr_prop = sum_tmp_prop - 0.5 * dot(beta_prop     , arma::inv(sigma_sq_u[r].slice(k-1)) * beta_prop.t());
         double rr      = sum_tmp      - 0.5 * dot(beta[r].row(i), arma::inv(sigma_sq_u[r].slice(k-1)) * beta[r].row(i).t());
 #ifdef DEBUG
-        rrs2     [r][i] = rr;     
+        rrs2     [r][i] = rr;
         rr_props2[r][i] = rr_prop;
 #endif
 
@@ -795,7 +762,7 @@ Rcpp::List BCC (
     for (int r = 0; r < R; r++) {
       if(dist[r].compare("gaussian")==0) {
         tmpp_list[r] = arma::vec(num_cluster);
-         tmp_list[r] = arma::vec(num_cluster);
+        tmp_list[r] = arma::vec(num_cluster);
         arma::vec       y = ((Rcpp::DataFrame)dat(r))["y"];
         arma::vec       t = ((Rcpp::DataFrame)dat(r))["time"];
         arma::vec      id = ((Rcpp::DataFrame)dat(r))["id"];
@@ -841,13 +808,13 @@ Rcpp::List BCC (
         if (sigma_sq_e_common) {
           sigma_sq_e[r] = arma::vec(num_cluster);
           sigma_sq_e[r] += *REAL(rinvgamma(1,
-            Rcpp::_["shape"]=sum(a0_tid),
-            Rcpp::_["scale"]=sum(b0_tid)));
+                                           Rcpp::_["shape"]=sum(a0_tid),
+                                           Rcpp::_["scale"]=sum(b0_tid)));
         } else {
           for (int k = 0; k < num_cluster; k++) {
             sigma_sq_e[r][k] = *REAL(rinvgamma(1,
-              Rcpp::_["shape"]=a0_tid.row(k),
-              Rcpp::_["scale"]=b0_tid.row(k)));
+                                               Rcpp::_["shape"]=a0_tid.row(k),
+                                               Rcpp::_["scale"]=b0_tid.row(k)));
           }
         }
       }
@@ -873,7 +840,7 @@ Rcpp::List BCC (
 #ifdef DEBUG
     rst.push_back(phi ,"phi");
 #endif
-    
+
     if (iter >= burn_in && iter % thin == 0) {
       //--------------------------------------------------------------------#
       // storing the sample;
@@ -888,23 +855,23 @@ Rcpp::List BCC (
         if (dist[r].compare("gaussian") == 0) {
           SIGMA_SQ_E[r].row(count)   =   sigma_sq_e[r].t();
         }
-           GA_ACCEPT[r].row(count)   = gamma_accept[r].t();
+        GA_ACCEPT[r].row(count)   = gamma_accept[r].t();
         THETA_ACCEPT[r].row(count)   =  beta_accept[r].t();
-        THETA       [r].slice(count) =  beta       [r]; 
-        
+        THETA       [r].slice(count) =  beta       [r];
+
         Rcpp::Function matrix("matrix");
         if(sig_var) {
           Rcpp::Environment MCMCpack = Rcpp::Environment::namespace_env("MCMCpack");
           Rcpp::Function vech = MCMCpack["vech"];
           SIGMA_SQ_U[r] = abind(SIGMA_SQ_U[r],matrix(apply(sigma_sq_u[r],3,vech),Rcpp::_["ncol"]=num_cluster),Rcpp::_["along"] = 3);
-        } else { 
+        } else {
           Rcpp::Function diag("diag");
           SIGMA_SQ_U[r] = abind(SIGMA_SQ_U[r],matrix(apply(sigma_sq_u[r],3,diag),Rcpp::_["ncol"]=num_cluster),Rcpp::_["along"] = 3);
         }
-        
+
         if (num_cluster > 1) {T_LOCAL[r].slice(count) = pt.slice(r); }
         ZZ_LOCAL[r].row(count) = zz_local.row(r);
-              GA[r]            = abind(GA[r], gamma[r],Rcpp::_["along"] = 3);
+        GA[r]            = abind(GA[r], gamma[r],Rcpp::_["along"] = 3);
       }
 
       count = count + 1; // put at the end since c++ index is 0-based
@@ -914,26 +881,26 @@ Rcpp::List BCC (
     // Check acceptance rate for random effect
     //  and adjusted accordingly when necessary
     //---------------------------------------------------------------#
-    if (adaptive_tuning) {
-      if( count > tuning_freq && num_cluster > 1) {
+    if (adaptive_tunning) {
+      if( count > tunning_freq && num_cluster > 1) {
         std::vector<arma::vec>    ga_acc(R);
         arma::vec theta_acc(R);
         for (int r = 0; r < R; r++) {
-             ga_acc[r] = Rcpp::as<arma::vec>(apply(GA_ACCEPT[r].rows(count - tuning_freq, count), 2, mean));
+          ga_acc[r] = Rcpp::as<arma::vec>(apply(GA_ACCEPT[r].rows(count - tunning_freq, count), 2, mean));
           theta_acc[r] = arma::mean(beta_accept[r]);
-          if (theta_acc[r] > 0.5)    c_beta_tuning[r] = std::max(0.1,c_beta_tuning[r] + 0.1);
-          if (theta_acc[r] < 0.1)    c_beta_tuning[r] = std::max(0.1,c_beta_tuning[r] - 0.1);
+          if (theta_acc[r] > 0.5)    c_beta_tunning[r] = std::max(0.1,c_beta_tunning[r] + 0.1);
+          if (theta_acc[r] < 0.1)    c_beta_tunning[r] = std::max(0.1,c_beta_tunning[r] - 0.1);
           for (int k = 0; k < num_cluster; k++) {
-            if (ga_acc[r][k] > 0.5)  c_gamma_tuning(r,k) = std::max(0.1,c_gamma_tuning(r,k) + 0.1);
-            if (ga_acc[r][k] < 0.1)  c_gamma_tuning(r,k) = std::max(0.1,c_gamma_tuning(r,k) - 0.1);
+            if (ga_acc[r][k] > 0.5)  c_gamma_tunning(r,k) = std::max(0.1,c_gamma_tunning(r,k) + 0.1);
+            if (ga_acc[r][k] < 0.1)  c_gamma_tunning(r,k) = std::max(0.1,c_gamma_tunning(r,k) - 0.1);
           }
         }
         // if (iter %% per == 0){ print(ga.acc); print(theta.acc);}
       }
     }
 #ifdef DEBUG
-    rst.push_back(c_beta_tuning ,"c.theta");
-    rst.push_back(c_gamma_tuning ,"c.ga");
+    rst.push_back(c_beta_tunning ,"c.theta");
+    rst.push_back(c_gamma_tunning ,"c.ga");
 #endif
 
     iter++;
