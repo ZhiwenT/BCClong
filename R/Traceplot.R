@@ -36,38 +36,51 @@ traceplot <- function(fit, cluster.indx=1, feature.indx=1, parameter="PI",  xlab
   R <- fit$R
   x <- 1:num.sample
 
-  if (parameter=="PI"){
-     par(mfrow=c(1,num.cluster))
-	for (j in 1:  num.cluster){
+  if (parameter=="PPI"){
+    par(mfrow=c(1,num.cluster))
+    for (j in 1:  num.cluster){
       y <- fit$PPI[,j]
-      plot(x,y,type="l",xlab=xlab,ylab=ylab,xlim=xlim,ylim=ylim, main=paste0("Cluster ",j), lwd=1.5)}}
+      plot(x,y,type="l",xlab=xlab,ylab=ylab,xlim=xlim,ylim=ylim,
+           main=paste0("Cluster ",j), lwd=1.5)}}
 
   if (parameter=="ALPHA") {
     par(mfrow=c(1,R))
     for (j in 1: R){
-    y <- fit$ALPHA[,j]
-    plot(x,y,type="l",xlab=xlab,ylab=ylab,xlim=xlim,ylim=ylim, main=paste0("Feature ",j),  lwd=1.5)}}
-
+      y <- fit$ALPHA[,j]
+      plot(x,y,type="l",xlab=xlab,ylab=ylab,xlim=xlim,ylim=ylim,
+           main=paste0("Feature ",j),  lwd=1.5)
+    }
+  }
   if (parameter=="GA") {
-       dim.GA <- dim(fit$GA[[feature.indx]][cluster.indx,,])[1]
-       par(mfrow=c(1,dim.GA))
-       for (j in 1:dim.GA){
-         y <- fit$GA[[feature.indx]][cluster.indx,j,]
-         plot(x,y,type="l",xlab=xlab,ylab=ylab,xlim=xlim,ylim=ylim, main=title, lwd=1.5)}}
-
+    dim.GA <- dim(fit$GA[[feature.indx]][cluster.indx,,])[1]
+    par(mfrow=c(1,dim.GA))
+    for (j in 1:dim.GA){
+      y <- fit$GA[[feature.indx]][cluster.indx,j,]
+      plot(x,y,type="l",xlab=xlab,ylab=ylab,xlim=xlim,ylim=ylim,
+           main=title, lwd=1.5)
+    }
+  }
   if (parameter=="SIGMA.SQ.U") {
     par(mfrow=c(1,num.cluster))
     for (j in 1:  num.cluster){
       y <- fit$SIGMA.SQ.U[[feature.indx]][cluster.indx,j,]
-      plot(x,y,type="l",xlab=xlab,ylab=ylab,xlim=xlim,ylim=ylim, main=title, lwd=1.5)}}
-
+      plot(x,y,type="l",xlab=xlab,ylab=ylab,xlim=xlim,ylim=ylim,
+           main=title, lwd=1.5)
+    }
+  }
   if (parameter=="SIGMA.SQ.E") {
     if (fit$dist[feature.indx]=="gaussian"){
-    par(mfrow=c(1,num.cluster))
-    for (j in 1:  num.cluster){
-      y <- fit$SIGMA.SQ.E[[feature.indx]][,cluster.indx]
-      plot(x,y,type="l",xlab=xlab,ylab=ylab,xlim=xlim,ylim=ylim, main=title, lwd=1.5)}}else{
-        print("SIGMA.SQ.E is not estimated for features with Binomial or Poisson distribution")}
+      par(mfrow=c(1,num.cluster))
+      for (j in 1:  num.cluster){
+        y <- fit$SIGMA.SQ.E[[feature.indx]][,cluster.indx]
+        plot(x,y,type="l",xlab=xlab,ylab=ylab,xlim=xlim,ylim=ylim,
+             main=title, lwd=1.5)
+      }
+    }
+    else{
+          print("SIGMA.SQ.E is not estimated for features with Binomial
+                or Poisson distribution")
+    }
   }
   par(mfrow=c(1,1))
 

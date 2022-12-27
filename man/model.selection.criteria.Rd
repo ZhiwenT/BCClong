@@ -15,5 +15,5 @@ model.selection.criteria(fit, fast_version = 1)
 Returns the calculated score
 }
 \description{
-A function that calculates of DIC and WAIC
+A function that calculates DIC and WAIC
 }

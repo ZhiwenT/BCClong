@@ -44,12 +44,31 @@ To list all the functions available in the package:
 ls("package:BCClong")
 ```
 
-Currently, there are 1 function __*BCC.multi*__ in this package which will provide a summary statistics for the computed model. This function will take in a data set and multiple parameters and output a BCC model with summary statistics. 
+Currently, there are 5 function in this package which are __*BCC.multi*__, 
+__*BayesT*__, __*model.selection.criteria*__, __*traceplot*__, __*trajplot*__.
+
+__*BCC.multi*__ function performs clustering on mixed-type (continuous, discrete and
+categorical) longitudinal markers using Bayesian consensus clustering method
+with MCMC sampling and provide a summary statistics for the computed model. This function will take in a data set and multiple parameters and output a BCC model with summary statistics. 
+
+__*BayesT*__ function assess the model goodness of fit by calculate the
+discrepancy measure T(\bm{\y}, \bm{\Theta}) with following steps
+  (a) Generate T.obs based on the MCMC samples
+  (b) Generate T.rep based on the posterior distribution of the parameters
+  (c) Compare  T.obs and T.rep, and calculate the P values.
+
+__*model.selection.criteria*__ function calculates DIC and WAIC for the fitted model
+__*traceplot*__ function visualize the MCMC chain for model parameters
+__*trajplot*__ function plot the longitudinal trajectory of features by local and global clustering
 
 more information can be found by using the code below after installation
 
 ```r
 ?BCClong::BCC.multi
+?BCClong::BayesT
+?BCClong::model.selection.criteria
+?BCClong::traceplot
+?BCClong::trajplot
 ```
 
 The package tree structure is provide below
@@ -61,6 +80,7 @@ The package tree structure is provide below
   |- NAMESPACE
   |- LICENSE
   |- README
+  |- NEWS
   |- inst
     |- extdata
       |- Epileptic.rds
@@ -69,12 +89,21 @@ The package tree structure is provide below
       |- procedure.png
     |-CITATION
   |- man
+    |- BayesT.Rd
     |- BCC.multi.Rd
+    |- model.selection.criteria.Rd
+    |- traceplot.Rd
+    |- trajplot.Rd
   |- R
     |- bcclong.R
+    |- DiscrepancyMeasure.R
+    |- modelSelection.R
     |- RcppExports.R
+    |- Traceplot.R
+    |- Trajplot.R
   |- src
     |- BCC.cpp
+    |- Likelihood.cpp
     |- RcppExports.cpp
     |- Makevars
     |- Makevars.win

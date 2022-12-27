@@ -42,15 +42,35 @@ To list all the functions available in the package:
 ls("package:BCClong")
 ```
 
-Currently, there are 1 function ***BCC.multi*** in this package which
-will provide a summary statistics for the computed model. This function
-will take in a data set and multiple parameters and output a BCC model
-with summary statistics.
+Currently, there are 5 function in this package which are
+***BCC.multi***, ***BayesT***, ***model.selection.criteria***,
+***traceplot***, ***trajplot***.
+
+***BCC.multi*** function performs clustering on mixed-type (continuous,
+discrete and categorical) longitudinal markers using Bayesian consensus
+clustering method with MCMC sampling and provide a summary statistics
+for the computed model. This function will take in a data set and
+multiple parameters and output a BCC model with summary statistics.
+
+***BayesT*** function assess the model goodness of fit by calculate the
+discrepancy measure T(, ) with following steps (a) Generate T.obs based
+on the MCMC samples (b) Generate T.rep based on the posterior
+distribution of the parameters (c) Compare T.obs and T.rep, and
+calculate the P values.
+
+***model.selection.criteria*** function calculates DIC and WAIC for the
+fitted model ***traceplot*** function visualize the MCMC chain for model
+parameters ***trajplot*** function plot the longitudinal trajectory of
+features by local and global clustering
 
 more information can be found by using the code below after installation
 
 ``` r
 ?BCClong::BCC.multi
+?BCClong::BayesT
+?BCClong::model.selection.criteria
+?BCClong::traceplot
+?BCClong::trajplot
 ```
 
 The package tree structure is provide below
@@ -62,6 +82,7 @@ The package tree structure is provide below
   |- NAMESPACE
   |- LICENSE
   |- README
+  |- NEWS
   |- inst
     |- extdata
       |- Epileptic.rds
@@ -70,12 +91,21 @@ The package tree structure is provide below
       |- procedure.png
     |-CITATION
   |- man
+    |- BayesT.Rd
     |- BCC.multi.Rd
+    |- model.selection.criteria.Rd
+    |- traceplot.Rd
+    |- trajplot.Rd
   |- R
     |- bcclong.R
+    |- DiscrepancyMeasure.R
+    |- modelSelection.R
     |- RcppExports.R
+    |- Traceplot.R
+    |- Trajplot.R
   |- src
     |- BCC.cpp
+    |- Likelihood.cpp
     |- RcppExports.cpp
     |- Makevars
     |- Makevars.win
@@ -120,18 +150,18 @@ and categorical longitudinal data. URL
 
 ## References
 
--   [Lu, Z., & Lou, W. (2021). Bayesian consensus clustering for
-    Multivariate Longitudinal Data. *Statistics in Medicine*, 41(1),
-    108–127.](https://doi.org/10.1002/sim.9225)
+- [Lu, Z., & Lou, W. (2021). Bayesian consensus clustering for
+  Multivariate Longitudinal Data. *Statistics in Medicine*, 41(1),
+  108–127.](https://doi.org/10.1002/sim.9225)
 
--   [Tan, Z., Shen, C., Subbarao, P., Lou, W. and Lu, Z., 2022. A Joint
-    Modeling Approach for Clustering Mixed-Type Multivariate
-    Longitudinal Data: Application to the CHILD Cohort Study. *arXiv
-    preprint*.](https://doi.org/10.48550/arXiv.2210.08385)
+- [Tan, Z., Shen, C., Subbarao, P., Lou, W. and Lu, Z., 2022. A Joint
+  Modeling Approach for Clustering Mixed-Type Multivariate Longitudinal
+  Data: Application to the CHILD Cohort Study. *arXiv
+  preprint*.](https://doi.org/10.48550/arXiv.2210.08385)
 
 ## Maintainer
 
--   Zhiwen Tan (<z.tan@queensu.ca>).
+- Zhiwen Tan (<z.tan@queensu.ca>).
 
 ## Contributions
 
