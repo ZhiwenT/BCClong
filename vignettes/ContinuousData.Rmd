@@ -60,7 +60,7 @@ __*trajplot*__ function plot the longitudinal trajectory of features by local an
 
 In this example, the `epileptic.qol` data set from `joinrRML` package was used. The variables used here include `anxiety score`, `depress score` and `AEP score`. All of the variables are continuous.
 
-```{r, warning=F, message=F}
+```{r, warning=F, message=F, fig.height= 5, fig.width= 8, fig.align='center', fig.cap= "Spaghtti plot for each marker"}
 library(BCClong)
 library(joineRML)
 library(ggplot2)
@@ -257,7 +257,7 @@ table(fit.BCC2$cluster.local[[3]])
 
 We can use the __*traceplot*__ function to plot the MCMC process and the __*trajplot*__ function to plot the trajectory for each feature.
 
-```{r, warning=F, message=F}
+```{r, warning=F, message=F, fig.height=5, fig.width=8, fig.align='center'}
 #=====================================================#
 # Trace-plot for key model parameters
 #=====================================================#
@@ -269,7 +269,10 @@ traceplot(fit=fit.BCC2,cluster.indx = 1, feature.indx=3,parameter="GA",ylab="GA"
 traceplot(fit=fit.BCC2,cluster.indx = 2, feature.indx=1,parameter="GA",ylab="GA",xlab="MCMC samples")
 traceplot(fit=fit.BCC2,cluster.indx = 2, feature.indx=2,parameter="GA",ylab="GA",xlab="MCMC samples")
 traceplot(fit=fit.BCC2,cluster.indx = 2, feature.indx=3,parameter="GA",ylab="GA",xlab="MCMC samples")
+```
 
+
+```{r, warning=F, message=F, fig.width=12, fig.height=6, fig.align='center'}
 #=====================================================#
 # Trajectory plot for features
 #=====================================================#
@@ -296,7 +299,6 @@ gp6 <- trajplot(fit=fit.BCC2,feature.ind=3,
 			title="Global Clustering",
 			xlab="time (months)",ylab="aep",color=c("#00BA38", "#619CFF"))
 library(cowplot)
-dev.new(width=180, height=120)
 plot_grid(gp1, gp2,gp3,gp4,gp5,gp6,
           labels=c("(A)", "(B)", "(C)", "(D)", "(E)", "(F)"),
 	    ncol = 3,   align = "v" )
@@ -310,7 +312,7 @@ plot_grid(gp1,NULL,gp2,NULL,gp3,NULL,
 
 The __*BayesT*__ function will be used for posterior check. Here we used the pre-compiled results, un-comment the line `res <- BayesT(fit=fit.BCC2)` to try your own. The pre-compiled data file can be found here (`./inst/extdata/conRes.rds`) For this function, the p-value between 0.3 to 0.7 was consider reasonable. In the scatter plot, the data pints should be evenly distributed around y = x. 
 
-```{r, message=F, warning=F}
+```{r, message=F, warning=F, fig.height=5, fig.width=7, fig.align='center'}
 #res <- BayesT(fit=fit.BCC2)
 res <- readRDS(file = "../inst/extdata/conRes.rds")
 plot(log(res$T.obs),log(res$T.rep),xlim=c(8.45,8.7), cex=1.5,

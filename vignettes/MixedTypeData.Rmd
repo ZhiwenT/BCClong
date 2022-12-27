@@ -125,7 +125,7 @@ print(fit.BCC2$cluster.local[[3]])
 ## Visualize Clusters
 
 We can use the __*traceplot*__ function to plot the MCMC process and the __*trajplot*__ function to plot the trajectory for each feature.
-```{r}
+```{r, warning=F, message=F, fig.height= 6, fig.width= 12, fig.align='center'}
 gp1 <- trajplot(fit=fit.BCC2,feature.ind=1,which.cluster = "local.cluster",
 			title= bquote(paste("Local Clustering (",hat(alpha)[1] ==.(round(fit.BCC2$alpha[1],2)),")")),
 			xlab="months",ylab="lbili",color=c("#00BA38", "#619CFF"))
