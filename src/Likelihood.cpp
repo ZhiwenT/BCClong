@@ -1,66 +1,44 @@
 # include <RcppArmadillo.h>
-            using namespace Rcpp;
-            using namespace arma;
-            // [[Rcpp::depends(RcppArmadillo)]]
-            // [[Rcpp::export]]
-            arma::vec  c_which(int input_id, arma::vec id,  arma::vec n_obs, NumericVector indata){
-
-              int input_id_R = input_id - 1;
-              arma:: vec id_R = id - 1;
-              arma:: vec out_index(n_obs[input_id_R]);  out_index.fill(0);
-              arma:: vec out_values(n_obs[input_id_R]);  out_values.fill(0);
-
-
-              arma:: vec index;
-              int n_tot = sum(n_obs);
-
-              // first find the index of the order
-              int j = 0;
-              for (int i = 0; i < n_tot; ++i) {
-                if (id[i] == input_id){ out_index[j] = i;
-                  j = j+1;}}
-              // find the indexed values;
-              for (int i = 0; i < n_obs[input_id_R]; ++i) {
-                out_values[i] = indata[out_index[i]];}
-              return out_values;
-            }
-
-
-
-# include <RcppArmadillo.h>
-# include <Rcpp.h>
-// [[Rcpp::depends(RcppArmadillo)]]
-
+#include <Rcpp.h>
 #include <vector>
 #include <math.h>
-
 #include <numeric>
+#include "c_which.h"
 
 using namespace Rcpp;
 using namespace sugar;
 using namespace arma;
 
-// [[Rcpp::depends(RcppArmadillo)]]
+//arma::vec  c_which(int input_id, arma::vec id,  arma::vec n_obs, NumericVector indata);
+
 // [[Rcpp::export()]]
 arma:: mat  LL(const Rcpp::List &fit, int fast_version) {   // calculate likelihood based on the BCC object
 
-  Rcpp::Environment myEnv = Rcpp::Environment::global_env();
-    Function c_which = myEnv["c_which"];
-
-  Rcpp::Environment base("package:base");
-    Function table = base["table"];
-    Function prod = base["prod"];
+  //Rcpp::Environment myEnv = Rcpp::Environment::global_env();
+  //Function c_which = myEnv["c_which"];
+  Function table("table");
+  Function prod("prod");
+  //Rcpp::Environment base("package:base");
+    //Function table = base["table"];
+    //Function prod = base["prod"];
     //Function is_finite = base["is.finite"];
 
-  Rcpp::Environment stats("package:stats");
-   Function dpois = stats["dpois"];
-   Function dbinom = stats["dbinom"];
+  Function dpois("dpois");
+  Function dbinom("dbinom");
+  //Rcpp::Environment stats("package:stats");
+   //Function dpois = stats["dpois"];
+   //Function dbinom = stats["dbinom"];
 
+   //Function dmvnorm("dmvnorm");
+   //Function mvrnorm("mvrnorm");
 
-  Rcpp::Environment mclust("package:mclust");
-    Function dmvnorm = mclust["dmvnorm"];
-  Rcpp::Environment MASS("package:MASS");
-    Function mvrnorm = MASS["mvrnorm"];
+Rcpp::Environment mclust = Rcpp::Environment::namespace_env("mclust");
+Rcpp::Function dmvnorm = mclust["dmvnorm"];
+
+    //Function dmvnorm = mclust["dmvnorm"];
+Rcpp::Environment MASS = Rcpp::Environment::namespace_env("MASS");
+Rcpp::Function mvrnorm = MASS["mvrnorm"];
+    //Function mvrnorm = MASS["mvrnorm"];
 
   int max_iter = fit["max.iter"];
   int burn_in = fit["burn.in"];
@@ -125,21 +103,17 @@ arma:: mat  LL(const Rcpp::List &fit, int fast_version) {   // calculate likelih
          arma::mat SIGMA_SQ_U_s_count = SIGMA_SQ_U_s.slice(count);
          arma::cube  THETA_s = THETA(s);
          arma::mat THETA_s_count = THETA_s.slice(count);
-
-         Rcpp:: DataFrame mydat = DataFrame::create(dat(s));
+         Rcpp::List mydat = dat(s);
          arma:: vec y_s = mydat["y"];
          arma:: vec xt = mydat["time"];
          arma:: vec ids = mydat["id"];
          arma:: vec n_obss = as<arma::vec>(table(ids)); // obtain number of observations
 
-         arma::vec  xt_i = as<arma::vec>(c_which(_("input_id") = i+1,
-                                                 _("id") = ids,
-                                                 _("n_obs") = n_obss,
-                                                 _("indata") = xt ));
-         arma::vec  y_si = as<arma::vec>(c_which(_("input_id") = i+1,
-                                                 _("id") = ids,
-                                                 _("n_obs") = n_obss,
-                                                 _("indata") = y_s ));
+         arma::vec  xt_i = c_which(i+1,ids,n_obss,Rcpp::NumericVector(Rcpp::wrap(xt)));
+
+         arma::vec  y_si = c_which(i+1,ids,n_obss,Rcpp::NumericVector(Rcpp::wrap(y_s)));
+
+
          arma::vec v_one_i (n_obss(i));  v_one_i.fill(1);
 
          arma::mat m = join_horiz(join_horiz(v_one_i,
@@ -149,11 +123,10 @@ arma:: mat  LL(const Rcpp::List &fit, int fast_version) {   // calculate likelih
                                               join_horiz(xt_i,pow(xt_i,2))),
                                               pow(xt_i,3)) ;
 
-         arma::mat  g =  m.submat(0,0,n_obss(i)-1,k(s)-1)*
-           trans(GA_s_count.submat(j,0,j,k(s)-1)) +
-           m.submat(0,0,n_obss(i)-1,K(s)-1)*
-           trans(THETA_s_count.submat(i,0,i,K(s)-1));
-
+         arma::mat  g =  m.submat(0,0,n_obss(i)-1,int(k(s))-1)*
+           trans(GA_s_count.submat(j,0,j,int(k(s))-1)) +
+           m.submat(0,0,n_obss(i)-1,int(K(s))-1)*
+           trans(THETA_s_count.submat(i,0,i,int(K(s))-1));
 
          if (dist(s)=="gaussian"){
            arma::vec  sigma_sq_e_s_l(n_obss(i));
@@ -181,37 +154,23 @@ arma:: mat  LL(const Rcpp::List &fit, int fast_version) {   // calculate likelih
              (ZZ_LOCAL_s_count(0,i)!=(j+1))*(1-alpha(s))/(num_cluster-1);
            }
        }  // Closed Loop marker
-
      double tmp_prod1 = as<double>(prod(vv));
      double tmp_prod2 = as<double>(prod(ffs));
-
      tmp  =  tmp + (tmp_prod1*ppi(0,j))*tmp_prod2;
 
    }// Closed Loop cluster
 
   // CharacterVector ev = as<CharacterVector>(is_finite(log(tmp)));
   // if (ev(0)=="TRUE") {log_lik_iter(i) = log(tmp);} else{log_lik_iter(i) = 0;}
-
   log_lik_iter(i) = log(tmp);
 
   } // Closed Loop Individual
-
  LOG_LIK_ITER.col(count) = log_lik_iter;
 
  }// Closed Loop MCMC
 
  return LOG_LIK_ITER;
 }
-
-
-
-
-
-
-
-
-
-
 
 
 

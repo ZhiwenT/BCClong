@@ -138,7 +138,7 @@ for (k in 1:5){
     initials= NULL,
     print.info="FALSE",
     burn.in = 1000,
-    thin = 1,
+    thin = 10,
     per = 100,
     max.iter = 2000)
    alpha.adjust <- c(alpha.adjust, fit.BCC$alpha.adjust)
@@ -174,10 +174,10 @@ fit.BCC2 <-  BCC.multi (
   formula =list(y ~ time + (1|id)),
   num.cluster = 2,
   print.info="FALSE",
-  burn.in = 200, 			# number of samples discarded
+  burn.in = 10, 			# number of samples discarded
   thin = 1, 				# thinning
-  per = 100, 				# output information every "per" iteration
-  max.iter = 300) 			# maximum number of iteration
+  per = 10, 				# output information every "per" iteration
+  max.iter = 30) 			# maximum number of iteration
 
 set.seed(20220929)
 fit.BCC2b <-  BCC.multi (
@@ -188,10 +188,10 @@ fit.BCC2b <-  BCC.multi (
   formula =list(y ~ time + (1 + time|id)),
   num.cluster = 2,
   print.info="FALSE",
-  burn.in = 200,
+  burn.in = 10,
   thin = 1,
-  per = 100,
-  max.iter = 300)
+  per = 10,
+  max.iter = 30)
 
 set.seed(20220929)
 fit.BCC2c <-  BCC.multi (
@@ -202,10 +202,10 @@ fit.BCC2c <-  BCC.multi (
   formula =list(y ~ time + time2 + (1 + time|id)),
   num.cluster = 2,
   print.info="FALSE",
-  burn.in = 200,
+  burn.in = 10,
   thin = 1,
-  per = 100,
-  max.iter = 300)
+  per = 10,
+  max.iter = 30)
 ```
 Load the pre-compiled results
 

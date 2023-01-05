@@ -83,20 +83,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// c_which
-arma::vec c_which(int input_id, arma::vec id, arma::vec n_obs, NumericVector indata);
-RcppExport SEXP _BCClong_c_which(SEXP input_idSEXP, SEXP idSEXP, SEXP n_obsSEXP, SEXP indataSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type input_id(input_idSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type id(idSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type n_obs(n_obsSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type indata(indataSEXP);
-    rcpp_result_gen = Rcpp::wrap(c_which(input_id, id, n_obs, indata));
-    return rcpp_result_gen;
-END_RCPP
-}
 // LL
 arma:: mat LL(const Rcpp::List& fit, int fast_version);
 RcppExport SEXP _BCClong_LL(SEXP fitSEXP, SEXP fast_versionSEXP) {
@@ -112,7 +98,6 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_BCClong_BCC", (DL_FUNC) &_BCClong_BCC, 62},
-    {"_BCClong_c_which", (DL_FUNC) &_BCClong_c_which, 4},
     {"_BCClong_LL", (DL_FUNC) &_BCClong_LL, 2},
     {NULL, NULL, 0}
 };

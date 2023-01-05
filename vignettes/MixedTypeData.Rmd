@@ -83,10 +83,10 @@ fit.BCC2 <- BCC.multi(
     time = list(PBC910$month),
     formula =list(y ~ time + (1|id),y ~ time + (1|id), y ~ time + (1|id)),
     num.cluster = 2,
-    burn.in = 1000, 			  
+    burn.in = 100, 			  
     thin = 10, 				    
-    per = 1000, 				      
-    max.iter = 2000) 
+    per = 10, 				      
+    max.iter = 200) 
 ```
 
 To run the pre-compiled result, please download the PBCseq.rds object from github under `inst/extdata/` folder. Then run the following code.
