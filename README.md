@@ -104,6 +104,8 @@ The package tree structure is provide below
     |- Traceplot.R
     |- Trajplot.R
   |- src
+    |- c_which.h
+    |- c_which.cpp
     |- BCC.cpp
     |- Likelihood.cpp
     |- RcppExports.cpp
