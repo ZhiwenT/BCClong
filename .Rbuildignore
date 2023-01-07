@@ -4,3 +4,5 @@
 ^README\.Rmd$
 ^doc$
 ^Meta$
+^README\.md$
+^NEWS\.md$

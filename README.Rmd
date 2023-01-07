@@ -24,7 +24,7 @@ for mixed-type longitudinal data
 ## Description
 
 Statistical methods for clustering a single longitudinal trajectory have been well-developed and widely used in many different medical research areas. However, it is very common these days to encounter situations where several longitudinal markers or responses are collected simultaneously in a study and there is a growing interest to examine how multiple longitudinal characteristics could collectively contribute to disaggregating disease heterogeneity. Therefore, the `BCClong` package has been created.
-`BCClong` is an R package for performing Bayesian Consensus Clustering (BCC) model for clustering continuous, discrete and categorical longitudinal data, which are commonly seen in many clinical studies [Lu et al., 2021](https://doi.org/10.1002/sim.9225). 
+`BCClong` is an R package for performing Bayesian Consensus Clustering (BCC) model for clustering continuous, discrete and categorical longitudinal data, which are commonly seen in many clinical studies [Lu et al., 2021]<https://doi.org/10.1002/sim.9225>. 
 
 ## Installation
 
@@ -137,9 +137,9 @@ Tan, Z., Shen, C., Lu, Z. (2022) BCClong: an R package for performing Bayesian C
               
 ## References
 
-* [Lu, Z., &amp; Lou, W. (2021). Bayesian consensus clustering for Multivariate Longitudinal Data. *Statistics in Medicine*, 41(1), 108–127.](https://doi.org/10.1002/sim.9225) 
+* [Lu, Z., &amp; Lou, W. (2021). Bayesian consensus clustering for Multivariate Longitudinal Data. *Statistics in Medicine*, 41(1), 108–127.]<https://doi.org/10.1002/sim.9225>
 
-* [Tan, Z., Shen, C., Subbarao, P., Lou, W. and Lu, Z., 2022. A Joint Modeling Approach for Clustering Mixed-Type Multivariate Longitudinal Data: Application to the CHILD Cohort Study. *arXiv preprint*.](https://doi.org/10.48550/arXiv.2210.08385)
+* [Tan, Z., Shen, C., Subbarao, P., Lou, W. and Lu, Z., 2022. A Joint Modeling Approach for Clustering Mixed-Type Multivariate Longitudinal Data: Application to the CHILD Cohort Study. *arXiv preprint*.]<https://doi.org/10.48550/arXiv.2210.08385>
 
 ## Maintainer
 
@@ -148,4 +148,3 @@ Tan, Z., Shen, C., Lu, Z. (2022) BCClong: an R package for performing Bayesian C
 ## Contributions
 
 `BCClong` welcomes issues, enhancement requests, and other contributions. To submit an issue, use the [GitHub issues](https://github.com/ZhiwenT/BCClong/issues).
-

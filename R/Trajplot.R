@@ -13,10 +13,7 @@
 #' @param xlab Label for x axis
 #' @param ylab Label for y axis
 #' @param color Color for the trajplot
-#'
 #' @return void function with no return value, only show plots
-#'
-#'
 #' @export
 #' @import ggplot2
 #' @importFrom graphics par
@@ -90,3 +87,5 @@ trajplot <- function(fit,feature.ind=1,which.cluster = "global.cluster",
   }
   gp
 }
+
+# [END]

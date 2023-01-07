@@ -127,7 +127,7 @@ then the MCMC chain will keep one sample every 10 iterations}
 Returns a model contains clustering information
 }
 \description{
-A function that performs clustering on mixed-type (continuous, discrete and
+This function performs clustering on mixed-type (continuous, discrete and
 categorical) longitudinal markers using Bayesian consensus clustering method
 with MCMC sampling
 }

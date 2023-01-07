@@ -18,10 +18,7 @@
 #' @param ylim The range for y axis
 #' @param xlim The range for x axis
 #' @param title Title for the trace plot
-#'
 #' @return void function with no return value, only show plots
-#'
-#'
 #' @export
 #' @importFrom graphics plot
 #' @useDynLib BCClong, .registration=TRUE
@@ -85,3 +82,5 @@ traceplot <- function(fit, cluster.indx=1, feature.indx=1, parameter="PI",  xlab
   par(mfrow=c(1,1))
 
 }
+
+# [END]

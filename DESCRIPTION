@@ -1,16 +1,28 @@
-Package: BCClong
 Type: Package
-Title: What the Package Does (Title Case)
+Package: BCClong
+Title: Bayesian Consensus Clustering for Multiple Longitudinal Features
 Version: 1.0.0
-Authors@R: person("Z", "Tan", email = "21zt9@queensu.ca", role = c("aut", "cre"))
+Authors@R: 
+    person("Zhiwen", "Tan", , "21zt9@queensu.ca", role = c("aut", "cre"))
 Maintainer: Zhiwen Tan <21zt9@queensu.ca>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-Depends: R (>= 3.5.0)
+Description: It is very common nowadays for a study to collect multiple
+    features and appropriately integrating multiple longitudinal features
+    simultaneously for defining individual clusters becomes increasingly
+    crucial to understanding population heterogeneity and predicting
+    future outcomes.  'BCClong' implements a Bayesian consensus clustering
+    (BCC) model for multiple longitudinal features via a generalized
+    linear mixed model. Compared to existing packages, several key
+    features make the BCClong package appealing: (a) it allows
+    simultaneous clustering of mixed-type (e.g., continuous, discrete and
+    categorical) longitudinal features, (b) it allows each longitudinal
+    feature to be collected from different sources with measurements taken
+    at distinct sets of time points (known as irregularly sampled
+    longitudinal data), (c) it relaxes the assumption that all features
+    have the same clustering structure by estimating the feature-specific
+    (local) clusterings and consensus (global) clustering.
 License: MIT + file LICENSE
-Encoding: UTF-8
-Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.1
+Depends: 
+    R (>= 3.5.0)
 Imports: 
     cluster,
     coda,
@@ -29,12 +41,18 @@ Imports:
     Rmpfr,
     stats,
     truncdist
-LinkingTo: Rcpp, RcppArmadillo
 Suggests: 
-    knitr,
-    rmarkdown,
     cowplot,
     joineRML,
+    knitr,
+    rmarkdown,
     survival,
     survminer
-VignetteBuilder: knitr
+LinkingTo: 
+    Rcpp,
+    RcppArmadillo
+VignetteBuilder: 
+    knitr
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.1

@@ -1,23 +1,18 @@
-#' Model Selection
+#' Model selection
 #'
-#' A function that calculates DIC and WAIC
-#'
+#' A function that calculates DIC and WAIC for model selection
 #'
 #' @param fit an objective output from BCC.multi() function
-#' @param fast_version ???
-#'
-#'
+#' @param fast_version if fast_verion=1 (default), then compute the DIC and WAIC using
+#'    the first 100 MCMC samples (after burn-in and thinning) . If fast_version=0, then
+#'    compute the DIC and WAIC using all MCMC samples (after burn-in and thinning)
 #' @return Returns the calculated score
-#'
-#'
 #' @export
 #' @import MASS
 #' @import mclust
 #' @import Rcpp
 #' @importFrom LaplacesDemon WAIC
 #' @useDynLib BCClong, .registration=TRUE
-
-#sourceCpp("C:/Likelihood_general_final.cpp")
 
 model.selection.criteria <- function(fit, fast_version=1){
   # calculate the log-likelihood
@@ -27,3 +22,5 @@ model.selection.criteria <- function(fit, fast_version=1){
   WBIC <- -mean(colSums(log_lik))
   list(DIC = mean(Dev) + var(Dev)/2, WAIC = res$WAIC, WBIC=WBIC)
 }
+
+# [END]

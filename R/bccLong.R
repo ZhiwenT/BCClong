@@ -1,10 +1,8 @@
 #' Compute a Bayesian Consensus Clustering model for mixed-type longitudinal data
 #'
-#' A function that performs clustering on mixed-type (continuous, discrete and
+#' This function performs clustering on mixed-type (continuous, discrete and
 #' categorical) longitudinal markers using Bayesian consensus clustering method
 #' with MCMC sampling
-#'
-#'
 #'
 #' @param mydat list of R longitudinal features (i.e., with a length of R),
 #'              where R is the number of features. The data should be prepared
@@ -70,11 +68,7 @@
 #'             then the MCMC chain will keep one sample every 10 iterations
 #' @param per specify how often the MCMC chain will print the iteration number
 #' @param max.iter the number of MCMC iterations.
-#'
-#'
 #' @return Returns a model contains clustering information
-#'
-#'
 #' @export
 #' @import label.switching
 #' @import lme4

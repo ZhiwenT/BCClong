@@ -2,18 +2,20 @@
 % Please edit documentation in R/modelSelection.R
 \name{model.selection.criteria}
 \alias{model.selection.criteria}
-\title{Model Selection}
+\title{Model selection}
 \usage{
 model.selection.criteria(fit, fast_version = 1)
 }
 \arguments{
 \item{fit}{an objective output from BCC.multi() function}
 
-\item{fast_version}{???}
+\item{fast_version}{if fast_verion=1 (default), then compute the DIC and WAIC using
+the first 100 MCMC samples (after burn-in and thinning) . If fast_version=0, then
+compute the DIC and WAIC using all MCMC samples (after burn-in and thinning)}
 }
 \value{
 Returns the calculated score
 }
 \description{
-A function that calculates DIC and WAIC
+A function that calculates DIC and WAIC for model selection
 }
