@@ -19,3 +19,11 @@ Returns the calculated score
 \description{
 A function that calculates DIC and WAIC for model selection
 }
+\examples{
+#import data
+filePath <- system.file("extdata", "example1.rds", package = "BCClong")
+fit.BCC <- readRDS(filePath)
+res <- model.selection.criteria(fit.BCC, fast_version=1)
+res
+
+}

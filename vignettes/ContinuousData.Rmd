@@ -261,7 +261,7 @@ We can use the __*traceplot*__ function to plot the MCMC process and the __*traj
 #=====================================================#
 # Trace-plot for key model parameters
 #=====================================================#
-traceplot(fit=fit.BCC2, parameter="PI",ylab="pi",xlab="MCMC samples")
+traceplot(fit=fit.BCC2, parameter="PPI",ylab="pi",xlab="MCMC samples")
 traceplot(fit=fit.BCC2, parameter="ALPHA",ylab="alpha",xlab="MCMC samples")
 traceplot(fit=fit.BCC2,cluster.indx = 1, feature.indx=1,parameter="GA",ylab="GA",xlab="MCMC samples")
 traceplot(fit=fit.BCC2,cluster.indx = 1, feature.indx=2,parameter="GA",ylab="GA",xlab="MCMC samples")

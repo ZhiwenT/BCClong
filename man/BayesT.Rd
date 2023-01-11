@@ -20,3 +20,11 @@ discrepancy measure T(bm{y}, bm{Theta}) with following steps
 (b) Generate T.rep based on the posterior distribution of the parameters
 (c) Compare  T.obs and T.rep, and calculate the P values.
 }
+\examples{
+#import data
+filePath <- system.file("extdata", "example.rds", package = "BCClong")
+fit.BCC <- readRDS(filePath)
+set.seed(20220929)
+BayesT(fit.BCC)
+
+}

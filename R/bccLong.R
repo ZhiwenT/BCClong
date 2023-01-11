@@ -69,6 +69,25 @@
 #' @param per specify how often the MCMC chain will print the iteration number
 #' @param max.iter the number of MCMC iterations.
 #' @return Returns a model contains clustering information
+#' @examples
+#' # import dataframe
+#' filePath <- system.file("extdata", "epil.rds", package = "BCClong")
+#' dat <- readRDS(filePath)
+#' set.seed(20220929)
+#' # example only, larger number of iteration required for accurate result
+#' fit.BCC <-  BCC.multi (
+#'        mydat = list(dat$anxiety_scale,dat$depress_scale),
+#'        dist = c("gaussian"),
+#'        id = list(dat$id),
+#'        time = list(dat$time),
+#'        formula =list(y ~ time + (1|id)),
+#'        num.cluster = 2,
+#'        print.info="FALSE",
+#'        burn.in = 3,
+#'        thin = 1,
+#'        per =1,
+#'        max.iter = 8)
+#'
 #' @export
 #' @import label.switching
 #' @import lme4
@@ -83,6 +102,7 @@
 #' @import cluster
 #' @importFrom coda geweke.diag
 #' @importFrom stats binomial poisson sd var
+#' @importFrom utils capture.output
 #' @useDynLib BCClong, .registration=TRUE
 
 BCC.multi <- function(
@@ -485,9 +505,9 @@ BCC.multi <- function(
     THETA.ACCEPT[[s]] <- matrix(0, nrow=(max.iter-burn.in)/thin, ncol=N)
   }
 
-  cat(paste(rep('-',60),sep='',collapse=''), '\n'); cat(paste(rep('-',60),sep='',collapse=''), '\n');
-  cat('Running BCC Model', '\n')
-  cat(paste(rep('-',60),sep='',collapse=''), '\n'); cat(paste(rep('-',60),sep='',collapse=''), '\n');
+  message(paste(rep('-',60),sep='',collapse=''), '\n'); message(paste(rep('-',60),sep='',collapse=''), '\n');
+  message('Running BCC Model', '\n')
+  message(paste(rep('-',60),sep='',collapse=''), '\n'); message(paste(rep('-',60),sep='',collapse=''), '\n');
 
   c.ga <- vector(mode = "list", length = R)
   for (s in 1:R) {
@@ -570,7 +590,7 @@ BCC.multi <- function(
   )
 
   end = proc.time()[1]
-  cat('It took', end - begin, 'seconds\n')
+  message('It took', end - begin, 'seconds\n')
   run.time <-  end - begin
 
   rst$PPI   <- matrix(rst$PPI,   ncol=num.cluster, byrow=TRUE)
@@ -601,9 +621,9 @@ BCC.multi <- function(
   iter         <- rst$iter
 
   #--------------------------------------------------------------------------------------------------#
-  cat(paste(rep('-',60),sep='',collapse=''), '\n'); cat(paste(rep('-',60),sep='',collapse=''), '\n');
-  cat('Post-Processing Results', '\n')
-  cat(paste(rep('-',60),sep='',collapse=''), '\n'); cat(paste(rep('-',60),sep='',collapse=''), '\n');
+  message(paste(rep('-',60),sep='',collapse=''), '\n'); message(paste(rep('-',60),sep='',collapse=''), '\n');
+  message('Post-Processing Results', '\n')
+  message(paste(rep('-',60),sep='',collapse=''), '\n'); message(paste(rep('-',60),sep='',collapse=''), '\n');
   #--------------------------------------------------------------------------------------------------#
   #----------------------------------------------------------------------------#
   #- Apply burn.in and thin
@@ -616,7 +636,9 @@ BCC.multi <- function(
     # for global cluster membership
     T.trans <- array(0,c(num.sample,N,num.cluster))
     for (j in 1:num.cluster){T.trans[,,j] <- t(T[,j,])}
-    out.relabel <- label.switching(method="STEPHENS",z=ZZ,K=num.cluster,p=T.trans)$permutations$STEPHENS
+    invisible(capture.output(out.relabel <- label.switching(method="STEPHENS",
+                                            z=ZZ,K=num.cluster,
+                                            p=T.trans)$permutations$STEPHENS))
     tp1 <- apply(T,c(1,2),mean); tp2 <- apply(tp1,1,sum)
     tp  <- cbind(tp1,tp2)
     tp[,1:num.cluster] <- tp[,1:num.cluster]/tp[,(num.cluster+1)]  # standardize
@@ -629,7 +651,11 @@ BCC.multi <- function(
     for (s in 1:R){
       T.LOCAL.trans[[s]] <- array(0,c(num.sample,N,num.cluster))
       for (j in 1:num.cluster){T.LOCAL.trans[[s]][,,j] <- t(T.LOCAL[[s]][,j,])}
-      out.relabel.local[[s]] <- label.switching(method="STEPHENS",z=ZZ.LOCAL[[s]],K=num.cluster,p=T.LOCAL.trans[[s]])$permutations$STEPHENS
+      invisible(capture.output(out.relabel.local[[s]] <-
+                                 label.switching(method="STEPHENS",
+                                 z=ZZ.LOCAL[[s]],
+                                 K=num.cluster,
+                                 p=T.LOCAL.trans[[s]])$permutations$STEPHENS))
     }
 
     # Post-processing the parameters according to the switching label

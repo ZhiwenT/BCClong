@@ -48,3 +48,10 @@ void function with no return value, only show plots
 \description{
 To visualize the MCMC chain for model parameters
 }
+\examples{
+# get data from the package
+filePath <- system.file("extdata", "epil1.rds", package = "BCClong")
+fit.BCC <- readRDS(filePath)
+traceplot(fit=fit.BCC, parameter="PPI",ylab="pi",xlab="MCMC samples")
+
+}

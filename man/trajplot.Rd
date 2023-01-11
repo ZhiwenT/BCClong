@@ -39,3 +39,19 @@ void function with no return value, only show plots
 \description{
 plot the longitudinal trajectory of features by local and global clusterings
 }
+\examples{
+# get data from the package
+filePath <- system.file("extdata", "epil1.rds", package = "BCClong")
+fit.BCC <- readRDS(filePath)
+# for local cluster
+trajplot(fit=fit.BCC,feature.ind=1, which.cluster = "local.cluster",
+         title= "Local Clustering",xlab="time (months)",
+         ylab="anxiety",color=c("#00BA38", "#619CFF"))
+
+# for global cluster
+trajplot(fit=fit.BCC,feature.ind=1,
+         which.cluster = "global.cluster",
+         title="Global Clustering",xlab="time (months)",
+         ylab="anxiety",color=c("#00BA38", "#619CFF"))
+
+}

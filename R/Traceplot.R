@@ -19,6 +19,12 @@
 #' @param xlim The range for x axis
 #' @param title Title for the trace plot
 #' @return void function with no return value, only show plots
+#' @examples
+#' # get data from the package
+#' filePath <- system.file("extdata", "epil1.rds", package = "BCClong")
+#' fit.BCC <- readRDS(filePath)
+#' traceplot(fit=fit.BCC, parameter="PPI",ylab="pi",xlab="MCMC samples")
+#'
 #' @export
 #' @importFrom graphics plot
 #' @useDynLib BCClong, .registration=TRUE
@@ -34,14 +40,16 @@ traceplot <- function(fit, cluster.indx=1, feature.indx=1, parameter="PI",  xlab
   x <- 1:num.sample
 
   if (parameter=="PPI"){
-    par(mfrow=c(1,num.cluster))
+    opar <- par(mfrow=c(1,num.cluster))
+    on.exit(par(opar))
     for (j in 1:  num.cluster){
       y <- fit$PPI[,j]
       plot(x,y,type="l",xlab=xlab,ylab=ylab,xlim=xlim,ylim=ylim,
            main=paste0("Cluster ",j), lwd=1.5)}}
 
   if (parameter=="ALPHA") {
-    par(mfrow=c(1,R))
+    opar <- par(mfrow=c(1,R))
+    on.exit(par(opar))
     for (j in 1: R){
       y <- fit$ALPHA[,j]
       plot(x,y,type="l",xlab=xlab,ylab=ylab,xlim=xlim,ylim=ylim,
@@ -50,7 +58,8 @@ traceplot <- function(fit, cluster.indx=1, feature.indx=1, parameter="PI",  xlab
   }
   if (parameter=="GA") {
     dim.GA <- dim(fit$GA[[feature.indx]][cluster.indx,,])[1]
-    par(mfrow=c(1,dim.GA))
+    opar <- par(mfrow=c(1,dim.GA))
+    on.exit(par(opar))
     for (j in 1:dim.GA){
       y <- fit$GA[[feature.indx]][cluster.indx,j,]
       plot(x,y,type="l",xlab=xlab,ylab=ylab,xlim=xlim,ylim=ylim,
@@ -58,7 +67,8 @@ traceplot <- function(fit, cluster.indx=1, feature.indx=1, parameter="PI",  xlab
     }
   }
   if (parameter=="SIGMA.SQ.U") {
-    par(mfrow=c(1,num.cluster))
+    opar <- par(mfrow=c(1,num.cluster))
+    on.exit(par(opar))
     for (j in 1:  num.cluster){
       y <- fit$SIGMA.SQ.U[[feature.indx]][cluster.indx,j,]
       plot(x,y,type="l",xlab=xlab,ylab=ylab,xlim=xlim,ylim=ylim,
@@ -67,7 +77,8 @@ traceplot <- function(fit, cluster.indx=1, feature.indx=1, parameter="PI",  xlab
   }
   if (parameter=="SIGMA.SQ.E") {
     if (fit$dist[feature.indx]=="gaussian"){
-      par(mfrow=c(1,num.cluster))
+      opar <- par(mfrow=c(1,num.cluster))
+      on.exit(par(opar))
       for (j in 1:  num.cluster){
         y <- fit$SIGMA.SQ.E[[feature.indx]][,cluster.indx]
         plot(x,y,type="l",xlab=xlab,ylab=ylab,xlim=xlim,ylim=ylim,
@@ -75,12 +86,10 @@ traceplot <- function(fit, cluster.indx=1, feature.indx=1, parameter="PI",  xlab
       }
     }
     else{
-          print("SIGMA.SQ.E is not estimated for features with Binomial
+          message("SIGMA.SQ.E is not estimated for features with Binomial
                 or Poisson distribution")
     }
   }
-  par(mfrow=c(1,1))
-
 }
 
 # [END]

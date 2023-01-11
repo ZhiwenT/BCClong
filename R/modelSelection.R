@@ -7,6 +7,13 @@
 #'    the first 100 MCMC samples (after burn-in and thinning) . If fast_version=0, then
 #'    compute the DIC and WAIC using all MCMC samples (after burn-in and thinning)
 #' @return Returns the calculated score
+#' @examples
+#' #import data
+#' filePath <- system.file("extdata", "example1.rds", package = "BCClong")
+#' fit.BCC <- readRDS(filePath)
+#' res <- model.selection.criteria(fit.BCC, fast_version=1)
+#' res
+#'
 #' @export
 #' @import MASS
 #' @import mclust

@@ -79,8 +79,6 @@ Rcpp::List BCC (
     int max_iter,
     int seed_initial
 ) {
-  Rcpp::Rcout << "Cpp begins" << std::endl ;
-
   a0.reshape(R, num_cluster);
   b0.reshape(R, num_cluster);
   c0.reshape(R, num_cluster);
@@ -908,8 +906,6 @@ Rcpp::List BCC (
       Rcpp::Rcout << "iter = " << iter << std::endl;
     if (iter == max_iter) break;
   }
-
-  Rcpp::Rcout << "Cpp ends" << std::endl ;
   rst.push_back(PPI         , "PPI");
   rst.push_back(ZZ          , "ZZ");
   rst.push_back(T           , "T");

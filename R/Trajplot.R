@@ -14,6 +14,21 @@
 #' @param ylab Label for y axis
 #' @param color Color for the trajplot
 #' @return void function with no return value, only show plots
+#' @examples
+#' # get data from the package
+#' filePath <- system.file("extdata", "epil1.rds", package = "BCClong")
+#' fit.BCC <- readRDS(filePath)
+#' # for local cluster
+#' trajplot(fit=fit.BCC,feature.ind=1, which.cluster = "local.cluster",
+#'          title= "Local Clustering",xlab="time (months)",
+#'          ylab="anxiety",color=c("#00BA38", "#619CFF"))
+#'
+#' # for global cluster
+#' trajplot(fit=fit.BCC,feature.ind=1,
+#'          which.cluster = "global.cluster",
+#'          title="Global Clustering",xlab="time (months)",
+#'          ylab="anxiety",color=c("#00BA38", "#619CFF"))
+#'
 #' @export
 #' @import ggplot2
 #' @importFrom graphics par
@@ -85,7 +100,7 @@ trajplot <- function(fit,feature.ind=1,which.cluster = "global.cluster",
                  linetype=guide_legend(nrow=1,byrow=FALSE),
                  fill=guide_legend(nrow=1,byrow=FALSE))
   }
-  gp
+  return(gp)
 }
 
 # [END]

@@ -131,3 +131,23 @@ This function performs clustering on mixed-type (continuous, discrete and
 categorical) longitudinal markers using Bayesian consensus clustering method
 with MCMC sampling
 }
+\examples{
+# import dataframe
+filePath <- system.file("extdata", "epil.rds", package = "BCClong")
+dat <- readRDS(filePath)
+set.seed(20220929)
+# example only, larger number of iteration required for accurate result
+fit.BCC <-  BCC.multi (
+       mydat = list(dat$anxiety_scale,dat$depress_scale),
+       dist = c("gaussian"),
+       id = list(dat$id),
+       time = list(dat$time),
+       formula =list(y ~ time + (1|id)),
+       num.cluster = 2,
+       print.info="FALSE",
+       burn.in = 3,
+       thin = 1,
+       per =1,
+       max.iter = 8)
+
+}
