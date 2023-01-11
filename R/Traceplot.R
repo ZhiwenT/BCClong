@@ -10,7 +10,7 @@
 #'                     specifying feature.indx will generate the trace
 #'                     plot for the corresponding cluster.
 #' @param parameter a character value. Specify which parameter for which the
-#'                  trace plot will be generated. The value can be "PI" for pi,
+#'                  trace plot will be generated. The value can be "PPI" for pi,
 #'                  alpha for alpha, "GA" for gamma, "SIGMA.SQ.U" for Sigma
 #'                  and "SIGMA.SQ.E" for sigma.
 #' @param xlab Label for x axis
@@ -29,7 +29,7 @@
 #' @importFrom graphics plot
 #' @useDynLib BCClong, .registration=TRUE
 
-traceplot <- function(fit, cluster.indx=1, feature.indx=1, parameter="PI",  xlab = NULL,
+traceplot <- function(fit, cluster.indx=1, feature.indx=1, parameter="PPI",  xlab = NULL,
                       ylab = NULL,
                       ylim = NULL,
                       xlim = NULL,
@@ -38,6 +38,10 @@ traceplot <- function(fit, cluster.indx=1, feature.indx=1, parameter="PI",  xlab
   num.sample <- (fit$max.iter - fit$burn.in)/fit$thin
   R <- fit$R
   x <- 1:num.sample
+
+  if (!parameter %in% c("PPI", "ALPHA", "GA", "SIGMA.SQ.U", "SIGMA.SQ.E")){
+    stop("invalid parameter")
+  }
 
   if (parameter=="PPI"){
     opar <- par(mfrow=c(1,num.cluster))

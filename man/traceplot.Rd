@@ -8,7 +8,7 @@ traceplot(
   fit,
   cluster.indx = 1,
   feature.indx = 1,
-  parameter = "PI",
+  parameter = "PPI",
   xlab = NULL,
   ylab = NULL,
   ylim = NULL,
@@ -28,7 +28,7 @@ specifying feature.indx will generate the trace
 plot for the corresponding cluster.}
 
 \item{parameter}{a character value. Specify which parameter for which the
-trace plot will be generated. The value can be "PI" for pi,
+trace plot will be generated. The value can be "PPI" for pi,
 alpha for alpha, "GA" for gamma, "SIGMA.SQ.U" for Sigma
 and "SIGMA.SQ.E" for sigma.}
 

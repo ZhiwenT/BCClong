@@ -22,6 +22,9 @@
 #' @useDynLib BCClong, .registration=TRUE
 
 model.selection.criteria <- function(fit, fast_version=1){
+  if(!fast_version %in% c(0,1)){
+    stop("fast_version should be either 0 or 1")
+  }
   # calculate the log-likelihood
   log_lik <- LL(fit, fast_version = fast_version)
   Dev <- -2*colSums(log_lik)
