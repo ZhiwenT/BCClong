@@ -57,8 +57,8 @@ trajplot <- function(fit,feature.ind=1,which.cluster = "global.cluster",
                                                 fill=plot.cluster))+
           geom_point(size=2,alpha=0.2) +
           geom_line(aes(x = time.org, y = y,group=id,color=plot.cluster),
-                    size=1.5,alpha=0.2)+
-          geom_smooth(method = "loess", size = 3,se = FALSE,span=2) +
+                    linewidth=1.5,alpha=0.2)+
+          geom_smooth(method = "loess", linewidth = 3,se = FALSE,span=2) +
           ggtitle(title) +
           theme_bw() +
           ylab(ylab) + xlab(xlab)+
@@ -82,8 +82,8 @@ trajplot <- function(fit,feature.ind=1,which.cluster = "global.cluster",
                     linetype=plot.cluster,fill=plot.cluster))+
           geom_point(size=2,alpha=0.2) +
           geom_line(aes(x = time.org, y = y,group=id,color=plot.cluster),
-                    size=1.5,alpha=0.2)+
-          geom_smooth(method = "loess", size = 3,se = FALSE,span=2) +
+                    linewidth=1.5,alpha=0.2)+
+          geom_smooth(method = "loess", linewidth = 3,se = FALSE,span=2) +
           ggtitle(title) +
           theme_bw() +
           ylab(ylab) + xlab(xlab)+

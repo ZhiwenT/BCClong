@@ -12,8 +12,8 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // BCC
-Rcpp::List BCC(Rcpp::List& dat, int R, Rcpp::List id, arma::umat n_obs, int N, int num_cluster, std::vector<std::string> dist, bool alpha_common, bool sigma_sq_e_common, arma::vec p, arma::vec q, bool sig_var, arma::vec ppi, arma::vec alpha, arma::vec zz, arma::mat zz_local, std::vector<arma::mat> gamma, std::vector<arma::vec> sigma_sq_e, std::vector<arma::vec> phi, std::vector<arma::cube> sigma_sq_u, std::vector<arma::mat> beta, arma::vec delta, double a_star, double b_star, double aa0, double bb0, arma::mat a0, arma::mat b0, std::vector<arma::mat> v0, std::vector<arma::cube> V0, double cc0, double dd0, arma::mat c0, arma::mat d0, double rr0, double RR0, double ww0, double vv0, arma::mat lambda0, std::vector<arma::cube> Lambda0, Rcpp::RObject LOG_LIK_ITER, Rcpp::RObject PPI, Rcpp::RObject ZZ, Rcpp::RObject ALPHA, std::vector<arma::mat> ZZ_LOCAL, std::vector<Rcpp::RObject> GA, std::vector<arma::mat> GA_ACCEPT, std::vector<arma::cube> THETA, std::vector<arma::mat> THETA_ACCEPT, std::vector<Rcpp::RObject> SIGMA_SQ_U, std::vector<arma::mat> SIGMA_SQ_E, std::vector<arma::cube> T_LOCAL, Rcpp::RObject T, bool adaptive_tunning, double tunning_freq, arma::mat c_gamma_tunning, arma::vec c_beta_tunning, int burn_in, int thin, int per, int max_iter, int seed_initial);
-RcppExport SEXP _BCClong_BCC(SEXP datSEXP, SEXP RSEXP, SEXP idSEXP, SEXP n_obsSEXP, SEXP NSEXP, SEXP num_clusterSEXP, SEXP distSEXP, SEXP alpha_commonSEXP, SEXP sigma_sq_e_commonSEXP, SEXP pSEXP, SEXP qSEXP, SEXP sig_varSEXP, SEXP ppiSEXP, SEXP alphaSEXP, SEXP zzSEXP, SEXP zz_localSEXP, SEXP gammaSEXP, SEXP sigma_sq_eSEXP, SEXP phiSEXP, SEXP sigma_sq_uSEXP, SEXP betaSEXP, SEXP deltaSEXP, SEXP a_starSEXP, SEXP b_starSEXP, SEXP aa0SEXP, SEXP bb0SEXP, SEXP a0SEXP, SEXP b0SEXP, SEXP v0SEXP, SEXP V0SEXP, SEXP cc0SEXP, SEXP dd0SEXP, SEXP c0SEXP, SEXP d0SEXP, SEXP rr0SEXP, SEXP RR0SEXP, SEXP ww0SEXP, SEXP vv0SEXP, SEXP lambda0SEXP, SEXP Lambda0SEXP, SEXP LOG_LIK_ITERSEXP, SEXP PPISEXP, SEXP ZZSEXP, SEXP ALPHASEXP, SEXP ZZ_LOCALSEXP, SEXP GASEXP, SEXP GA_ACCEPTSEXP, SEXP THETASEXP, SEXP THETA_ACCEPTSEXP, SEXP SIGMA_SQ_USEXP, SEXP SIGMA_SQ_ESEXP, SEXP T_LOCALSEXP, SEXP TSEXP, SEXP adaptive_tunningSEXP, SEXP tunning_freqSEXP, SEXP c_gamma_tunningSEXP, SEXP c_beta_tunningSEXP, SEXP burn_inSEXP, SEXP thinSEXP, SEXP perSEXP, SEXP max_iterSEXP, SEXP seed_initialSEXP) {
+Rcpp::List BCC(Rcpp::List& dat, int R, Rcpp::List id, arma::umat n_obs, int N, int num_cluster, std::vector<std::string> dist, bool alpha_common, bool sigma_sq_e_common, arma::vec p, arma::vec q, arma::vec ppi, arma::vec alpha, arma::vec zz, arma::mat zz_local, std::vector<arma::mat> gamma, std::vector<arma::vec> sigma_sq_e, std::vector<arma::vec> phi, std::vector<arma::cube> sigma_sq_u, std::vector<arma::mat> beta, arma::vec delta, double a_star, double b_star, double aa0, double bb0, arma::mat a0, arma::mat b0, std::vector<arma::mat> v0, std::vector<arma::cube> V0, double cc0, double dd0, arma::mat c0, arma::mat d0, double rr0, double RR0, double ww0, double vv0, arma::mat lambda0, std::vector<arma::cube> Lambda0, Rcpp::RObject LOG_LIK_ITER, Rcpp::RObject PPI, Rcpp::RObject ZZ, Rcpp::RObject ALPHA, std::vector<arma::mat> ZZ_LOCAL, std::vector<Rcpp::RObject> GA, std::vector<arma::mat> GA_ACCEPT, std::vector<arma::cube> THETA, std::vector<arma::mat> THETA_ACCEPT, std::vector<Rcpp::RObject> SIGMA_SQ_U, std::vector<arma::mat> SIGMA_SQ_E, std::vector<arma::cube> T_LOCAL, Rcpp::RObject T, bool adaptive_tunning, double tunning_freq, arma::mat c_gamma_tunning, arma::vec c_beta_tunning, int burn_in, int thin, int per, int max_iter, int seed_initial);
+RcppExport SEXP _BCClong_BCC(SEXP datSEXP, SEXP RSEXP, SEXP idSEXP, SEXP n_obsSEXP, SEXP NSEXP, SEXP num_clusterSEXP, SEXP distSEXP, SEXP alpha_commonSEXP, SEXP sigma_sq_e_commonSEXP, SEXP pSEXP, SEXP qSEXP, SEXP ppiSEXP, SEXP alphaSEXP, SEXP zzSEXP, SEXP zz_localSEXP, SEXP gammaSEXP, SEXP sigma_sq_eSEXP, SEXP phiSEXP, SEXP sigma_sq_uSEXP, SEXP betaSEXP, SEXP deltaSEXP, SEXP a_starSEXP, SEXP b_starSEXP, SEXP aa0SEXP, SEXP bb0SEXP, SEXP a0SEXP, SEXP b0SEXP, SEXP v0SEXP, SEXP V0SEXP, SEXP cc0SEXP, SEXP dd0SEXP, SEXP c0SEXP, SEXP d0SEXP, SEXP rr0SEXP, SEXP RR0SEXP, SEXP ww0SEXP, SEXP vv0SEXP, SEXP lambda0SEXP, SEXP Lambda0SEXP, SEXP LOG_LIK_ITERSEXP, SEXP PPISEXP, SEXP ZZSEXP, SEXP ALPHASEXP, SEXP ZZ_LOCALSEXP, SEXP GASEXP, SEXP GA_ACCEPTSEXP, SEXP THETASEXP, SEXP THETA_ACCEPTSEXP, SEXP SIGMA_SQ_USEXP, SEXP SIGMA_SQ_ESEXP, SEXP T_LOCALSEXP, SEXP TSEXP, SEXP adaptive_tunningSEXP, SEXP tunning_freqSEXP, SEXP c_gamma_tunningSEXP, SEXP c_beta_tunningSEXP, SEXP burn_inSEXP, SEXP thinSEXP, SEXP perSEXP, SEXP max_iterSEXP, SEXP seed_initialSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -28,7 +28,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type sigma_sq_e_common(sigma_sq_e_commonSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type p(pSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type q(qSEXP);
-    Rcpp::traits::input_parameter< bool >::type sig_var(sig_varSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type ppi(ppiSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type alpha(alphaSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type zz(zzSEXP);
@@ -79,7 +78,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type per(perSEXP);
     Rcpp::traits::input_parameter< int >::type max_iter(max_iterSEXP);
     Rcpp::traits::input_parameter< int >::type seed_initial(seed_initialSEXP);
-    rcpp_result_gen = Rcpp::wrap(BCC(dat, R, id, n_obs, N, num_cluster, dist, alpha_common, sigma_sq_e_common, p, q, sig_var, ppi, alpha, zz, zz_local, gamma, sigma_sq_e, phi, sigma_sq_u, beta, delta, a_star, b_star, aa0, bb0, a0, b0, v0, V0, cc0, dd0, c0, d0, rr0, RR0, ww0, vv0, lambda0, Lambda0, LOG_LIK_ITER, PPI, ZZ, ALPHA, ZZ_LOCAL, GA, GA_ACCEPT, THETA, THETA_ACCEPT, SIGMA_SQ_U, SIGMA_SQ_E, T_LOCAL, T, adaptive_tunning, tunning_freq, c_gamma_tunning, c_beta_tunning, burn_in, thin, per, max_iter, seed_initial));
+    rcpp_result_gen = Rcpp::wrap(BCC(dat, R, id, n_obs, N, num_cluster, dist, alpha_common, sigma_sq_e_common, p, q, ppi, alpha, zz, zz_local, gamma, sigma_sq_e, phi, sigma_sq_u, beta, delta, a_star, b_star, aa0, bb0, a0, b0, v0, V0, cc0, dd0, c0, d0, rr0, RR0, ww0, vv0, lambda0, Lambda0, LOG_LIK_ITER, PPI, ZZ, ALPHA, ZZ_LOCAL, GA, GA_ACCEPT, THETA, THETA_ACCEPT, SIGMA_SQ_U, SIGMA_SQ_E, T_LOCAL, T, adaptive_tunning, tunning_freq, c_gamma_tunning, c_beta_tunning, burn_in, thin, per, max_iter, seed_initial));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -97,7 +96,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_BCClong_BCC", (DL_FUNC) &_BCClong_BCC, 62},
+    {"_BCClong_BCC", (DL_FUNC) &_BCClong_BCC, 61},
     {"_BCClong_LL", (DL_FUNC) &_BCClong_LL, 2},
     {NULL, NULL, 0}
 };

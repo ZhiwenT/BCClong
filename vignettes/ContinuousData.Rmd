@@ -136,7 +136,6 @@ for (k in 1:5){
     formula =list(y ~ time +  (1 |id)),
     num.cluster = k,
     initials= NULL,
-    print.info="FALSE",
     burn.in = 1000,
     thin = 10,
     per = 100,
@@ -173,7 +172,6 @@ fit.BCC2 <-  BCC.multi (
     time = list(dat$time),
   formula =list(y ~ time + (1|id)),
   num.cluster = 2,
-  print.info="FALSE",
   burn.in = 10, 			# number of samples discarded
   thin = 1, 				# thinning
   per = 10, 				# output information every "per" iteration
@@ -187,7 +185,6 @@ fit.BCC2b <-  BCC.multi (
     time = list(dat$time),
   formula =list(y ~ time + (1 + time|id)),
   num.cluster = 2,
-  print.info="FALSE",
   burn.in = 10,
   thin = 1,
   per = 10,
@@ -201,7 +198,6 @@ fit.BCC2c <-  BCC.multi (
     time = list(dat$time),
   formula =list(y ~ time + time2 + (1 + time|id)),
   num.cluster = 2,
-  print.info="FALSE",
   burn.in = 10,
   thin = 1,
   per = 10,

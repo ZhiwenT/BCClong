@@ -12,7 +12,6 @@ BCC.multi(
   num.cluster,
   formula,
   dist,
-  sig.var = 0,
   alpha.common = 0,
   initials = NULL,
   sigma.sq.e.common = 1,
@@ -23,10 +22,9 @@ BCC.multi(
   adaptive.tunning = 0,
   tunning.freq = 20,
   initial.cluster.membership = "random",
-  input.initial.cluster.membership = NULL,
-  initial.global.cluster.membership = NULL,
+  input.initial.local.cluster.membership = NULL,
+  input.initial.global.cluster.membership = NULL,
   seed.initial = 2080,
-  print.info = "TRUE",
   burn.in,
   thin,
   per,
@@ -66,10 +64,6 @@ for a continuous feature, "poisson" for a discrete feature
 dichotomous feature (0/1) using a logit link. Single value
 (i.e., a length of 1) is recycled if necessary}
 
-\item{sig.var}{1 - unstructure random effect variance,
-0 - diagonal random effect variance structure,
-default is 0}
-
 \item{alpha.common}{1 - common alpha, 0 - separate alphas for each outcome}
 
 \item{initials}{List of initials for: zz, zz.local ga, sigma.sq.u, sigma.sq.e,
@@ -99,19 +93,17 @@ default is 1}
 input initial cluster membership for local
 clustering, default is "random"}
 
-\item{input.initial.cluster.membership}{if use "input",
+\item{input.initial.local.cluster.membership}{if use "input",
 option input.initial.cluster.membership
 must not be empty, default is NULL}
 
-\item{initial.global.cluster.membership}{input initial cluster
+\item{input.initial.global.cluster.membership}{input initial cluster
 membership for global clustering
 default is NULL}
 
 \item{seed.initial}{seed for initial clustering
 (for initial.cluster.membership = "mixAK")
 default is 2080}
-
-\item{print.info}{print model information at each iteration, default is true}
 
 \item{burn.in}{the number of samples disgarded.
 This value must be smaller than max.iter.}
@@ -144,7 +136,6 @@ fit.BCC <-  BCC.multi (
        time = list(dat$time),
        formula =list(y ~ time + (1|id)),
        num.cluster = 2,
-       print.info="FALSE",
        burn.in = 3,
        thin = 1,
        per =1,

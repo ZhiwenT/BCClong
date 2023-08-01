@@ -10,14 +10,13 @@ test_that("BCC.multi works", {
     time = list(dat$time),
     formula =list(y ~ time + (1|id)),
     num.cluster = 2,
-    print.info="FALSE",
     burn.in = 3,
     thin = 1,
     per =1,
     max.iter = 8)
 
   expect_type(fit.BCC, "list")
-  expect_length(fit.BCC, 30)
+  expect_length(fit.BCC, 27)
   expect_length(fit.BCC$PPI, 10)
   expect_identical(round(fit.BCC$PPI[1,], 3), c(0.478, 0.522))
   expect_identical(round(fit.BCC$ALPHA[1,], 3), c(0.808, 0.959))
@@ -37,7 +36,6 @@ test_that("BCC.multi fail", {
     time = list(dat$time),
     formula =list(y ~ time + (1|id)),
     num.cluster = 2,
-    print.info="FALSE",
     burn.in = 8,
     thin = 1,
     per =1,
@@ -50,7 +48,6 @@ test_that("BCC.multi fail", {
     time = list(dat$time),
     formula =list(y ~ time + (1|id)),
     num.cluster = 2,
-    print.info="FALSE",
     burn.in = 2,
     thin = 1,
     per =1,
@@ -62,7 +59,6 @@ test_that("BCC.multi fail", {
     id = list(dat$id),
     time = list(dat$time),
     num.cluster = 2,
-    print.info="FALSE",
     burn.in = 2,
     thin = 1,
     per =1,

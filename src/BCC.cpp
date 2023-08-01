@@ -22,7 +22,7 @@ Rcpp::List BCC (
     bool sigma_sq_e_common,
     arma::vec p,
     arma::vec q,
-    bool sig_var,
+
 
     arma::vec ppi,
     arma::vec alpha,
@@ -446,19 +446,7 @@ Rcpp::List BCC (
         rr_props[r][k] = rr_prop;
 #endif
         double aa      = std::min(1.0, exp(rr_prop-rr));
-        //     if (iter %% per == 0 & print.info == "TRUE") {
-        //       cat(paste(rep('-',20),sep='',collapse=''), '\n');
-        //       cat("dist = ", dist[[s]] , "\n")
-        //       cat(paste(rep('-',20),sep='',collapse=''), '\n');
-        //       cat("zz.local = ", table(zz.local[[s]]), "\n")
-        //       cat("c.ga = ", c.ga[[s]], "\n")
-        //       cat("omega0.tid = ", omega0.tid[[s]], "\n")
-        //       cat("w0.tid = ", w0.tid[[s]], "\n")
-        //       cat("rr.prop = ", rr.prop, "\n")
-        //       cat("rr = ", rr, "\n")
-        //       cat("myratio = ", myratio, "\n")
-        //       cat("aa = ", aa, "\n")
-        //     }
+
 
         if (isnan(aa)) {
           gamma_new[r].row(k) = gamma[r].row(k); gamma_accept[r].row(k) = 0;
@@ -505,54 +493,31 @@ Rcpp::List BCC (
 #ifdef DEBUG
     Rcpp::Rcout << "Sample Sigma's (Random effect variances)" << std::endl;
 #endif
-    if (sig_var) {
-      std::vector<arma::cube> tmp_list   (R);
-      std::vector<arma::cube> Lambda_tid(R);
-      std::vector<arma::cube> sigma_sq_u_inv(R);
-      for (int r = 0; r < R; r++) {
-        tmp_list[r] = arma::cube(q[r],q[r],num_cluster);
-        Lambda_tid[r] = arma::cube(q[r],q[r],num_cluster);
-        sigma_sq_u_inv[r] = arma::cube(q[r],q[r],num_cluster);
 
-        for (int i = 0; i < N; i++) {
-          for (int k = 0; k < num_cluster; k++) {
-            tmp_list[r].slice(k) += (zz_local(r,i)==k+1) * beta[r].row(i).subvec(0,q[r]) * beta[r].row(i).subvec(0,q[r]).t();
-          }
-        }
-        Lambda_tid[r] = lambda0[r]*Lambda0[r] + tmp_list[r];
-        Rcpp::Function rWishart("rWishart");
-        for (int k = 0; k < num_cluster; k++) {
-          sigma_sq_u_inv[r].slice(k) = Rcpp::as<arma::mat>(rWishart(1,
-                                                           arma::mat(1,1,arma::fill::value(sum(zz_local.row(r)==k+1) + lambda0(r,k))),
-                                                           arma::inv(Lambda_tid[r].slice(k))));
-          sigma_sq_u[r].slice(k) = arma::inv(sigma_sq_u_inv[r].slice(k));
-        }
-      }
-    } else {
-      for (int r = 0; r < R; r++) {
-        for (int k = 0; k < num_cluster; k++) {
-          arma::vec zeta_sq(q[r]);
-          for (int c = 0; c < q[r]; c++) {
-            arma::vec in_i = arma::conv_to<arma::vec>::from(zz_local.row(r)==k+1);
-            arma::uvec in_i_idx = find(in_i);
-            arma::colvec beta_ = beta[r].col(c);
-            beta_ = beta_(in_i_idx);
+    for (int r = 0; r < R; r++) {
+      for (int k = 0; k < num_cluster; k++) {
+        arma::vec zeta_sq(q[r]);
+        for (int c = 0; c < q[r]; c++) {
+          arma::vec in_i = arma::conv_to<arma::vec>::from(zz_local.row(r)==k+1);
+          arma::uvec in_i_idx = find(in_i);
+          arma::colvec beta_ = beta[r].col(c);
+          beta_ = beta_(in_i_idx);
 
-            double c0_tid = c0(r,k) + arma::sum(in_i)/2.0;
-            double d0_tid = d0(r,k) + arma::dot(beta_, beta_)/2.0;
+          double c0_tid = c0(r,k) + arma::sum(in_i)/2.0;
+          double d0_tid = d0(r,k) + arma::dot(beta_, beta_)/2.0;
 #ifdef NORAND
-            set_seed(seed_initial + iter + r+1 + k+1 + c+1);
+          set_seed(seed_initial + iter + r+1 + k+1 + c+1);
 #endif
-            Rcpp::Environment MCMCpack = Rcpp::Environment::namespace_env("MCMCpack");
-            Rcpp::Function rinvgamma = MCMCpack["rinvgamma"];
-            zeta_sq[c] = *REAL(rinvgamma(1, c0_tid, d0_tid));
-          }
-
-          sigma_sq_u[r].slice(k) *= 0;
-          sigma_sq_u[r].slice(k).diag() += zeta_sq;
+          Rcpp::Environment MCMCpack = Rcpp::Environment::namespace_env("MCMCpack");
+          Rcpp::Function rinvgamma = MCMCpack["rinvgamma"];
+          zeta_sq[c] = *REAL(rinvgamma(1, c0_tid, d0_tid));
         }
+
+        sigma_sq_u[r].slice(k) *= 0;
+        sigma_sq_u[r].slice(k).diag() += zeta_sq;
       }
     }
+
 #ifdef DEBUG
     rst.push_back(sigma_sq_u ,"sigma.sq.u");
 #endif
@@ -858,14 +823,10 @@ Rcpp::List BCC (
         THETA       [r].slice(count) =  beta       [r];
 
         Rcpp::Function matrix("matrix");
-        if(sig_var) {
-          Rcpp::Environment MCMCpack = Rcpp::Environment::namespace_env("MCMCpack");
-          Rcpp::Function vech = MCMCpack["vech"];
-          SIGMA_SQ_U[r] = abind(SIGMA_SQ_U[r],matrix(apply(sigma_sq_u[r],3,vech),Rcpp::_["ncol"]=num_cluster),Rcpp::_["along"] = 3);
-        } else {
-          Rcpp::Function diag("diag");
-          SIGMA_SQ_U[r] = abind(SIGMA_SQ_U[r],matrix(apply(sigma_sq_u[r],3,diag),Rcpp::_["ncol"]=num_cluster),Rcpp::_["along"] = 3);
-        }
+
+        Rcpp::Function diag("diag");
+        SIGMA_SQ_U[r] = abind(SIGMA_SQ_U[r],matrix(apply(sigma_sq_u[r],3,diag),Rcpp::_["ncol"]=num_cluster),Rcpp::_["along"] = 3);
+
 
         if (num_cluster > 1) {T_LOCAL[r].slice(count) = pt.slice(r); }
         ZZ_LOCAL[r].row(count) = zz_local.row(r);
@@ -893,7 +854,6 @@ Rcpp::List BCC (
             if (ga_acc[r][k] < 0.1)  c_gamma_tunning(r,k) = std::max(0.1,c_gamma_tunning(r,k) - 0.1);
           }
         }
-        // if (iter %% per == 0){ print(ga.acc); print(theta.acc);}
       }
     }
 #ifdef DEBUG

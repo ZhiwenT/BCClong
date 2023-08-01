@@ -32,9 +32,6 @@
 #' @param alpha.common 1 - common alpha, 0 - separate alphas for each outcome
 #' @param initials List of initials for: zz, zz.local ga, sigma.sq.u, sigma.sq.e,
 #'                 Default is NULL
-#' @param sig.var 1 - unstructure random effect variance,
-#'                0 - diagonal random effect variance structure,
-#'                default is 0
 #' @param sigma.sq.e.common 1 - estimate common residual variance across all groups,
 #'                          0 - estimate distinct residual variance, default is 1
 #' @param hyper.par hyper-parameters of the prior distributions for the model
@@ -52,16 +49,15 @@
 #' @param initial.cluster.membership "mixAK" or "random" or "PAM" or "input" -
 #'                                  input initial cluster membership for local
 #'                                  clustering, default is "random"
-#' @param input.initial.cluster.membership if use "input",
+#' @param input.initial.local.cluster.membership if use "input",
 #'                                  option input.initial.cluster.membership
 #'                                  must not be empty, default is NULL
-#' @param initial.global.cluster.membership input initial cluster
+#' @param input.initial.global.cluster.membership input initial cluster
 #'                                  membership for global clustering
 #'                                  default is NULL
 #' @param seed.initial seed for initial clustering
 #'                    (for initial.cluster.membership = "mixAK")
 #'                    default is 2080
-#' @param print.info print model information at each iteration, default is true
 #' @param burn.in the number of samples disgarded.
 #'                This value must be smaller than max.iter.
 #' @param thin the number of thinning. For example, if thin = 10,
@@ -82,7 +78,6 @@
 #'        time = list(dat$time),
 #'        formula =list(y ~ time + (1|id)),
 #'        num.cluster = 2,
-#'        print.info="FALSE",
 #'        burn.in = 3,
 #'        thin = 1,
 #'        per =1,
@@ -113,7 +108,6 @@ BCC.multi <- function(
     num.cluster,           # number of cluster
     formula,               # fixed and random effect
     dist,                  # "gaussian","poisson","binomial", distribution of the marker
-    sig.var = 0,
     alpha.common = 0,          # 1 - common alpha, 0 - separate alphas for each marker
     initials = NULL,       # List of initials for: zz, zz.local ga, sigma.sq.u, sigma.sq.e,
     sigma.sq.e.common = 1, # 1 - estimate common residual variance across all groups, 0 - estimate distinct residual variance
@@ -135,10 +129,9 @@ BCC.multi <- function(
     adaptive.tunning = 0,                  # adaptive tunning parameters, 1 - yes, 0 - no
     tunning.freq     = 20,                 # tunning frequency
     initial.cluster.membership = "random",        # "mixAK" or "random" or "input" - input initial cluster membership for local clustering
-    input.initial.cluster.membership = NULL,   # if use "input", option input.initial.cluster.membership must not be empty
-    initial.global.cluster.membership = NULL,  # input initial cluster membership for global clustering
+    input.initial.local.cluster.membership = NULL,   # if use "input", option input.initial.local.cluster.membership must not be empty
+    input.initial.global.cluster.membership = NULL,  # input initial cluster membership for global clustering
     seed.initial    = 2080,               # seed for initial clustering (for initial.cluster.membership = "mixAK")
-    print.info      = "TRUE",             # print model information at each iteration
     burn.in,                              # number of samples discarded
     thin,                                 # thinning
     per,                                  # output information every "per" interaction
@@ -175,7 +168,7 @@ BCC.multi <- function(
   }
 
   # Find common id
-  # (require each individual has at least one observation for all markers)
+  # (require each individual to have at least one observation for all markers)
   common.id <- NULL
   for (s in 1:R){
     if (s==1)  common.id <- unique(id[[s]]) else{
@@ -249,7 +242,7 @@ BCC.multi <- function(
     K[[s]] <- dim(theta[[s]])[2]
   }
 
-  if (length(initials) == 0) {        # use default initial values
+  if (length(initials) == 0) {        			# use default initial values
     my.cluster     <- vector(mode = "list", length = R)
     my.cluster.tmp <- NULL
     for (s in 1:R) {
@@ -314,7 +307,7 @@ BCC.multi <- function(
         }
       }
       if (initial.cluster.membership == "random") {my.cluster[[s]] <- sample(1:num.cluster,N,replace=TRUE)}
-      if (initial.cluster.membership == "input")  {my.cluster[[s]] <- input.initial.cluster.membership[[s]]}
+      if (initial.cluster.membership == "input")  {my.cluster[[s]] <- input.initial.local.cluster.membership[[s]]}
 
       my.cluster.tmp <- cbind(my.cluster.tmp, my.cluster[[s]])
       mydf.clust     <- data.frame(
@@ -359,7 +352,7 @@ BCC.multi <- function(
 
     alpha    <- rep(0.9,R)
     # initial cluster membership
-    if (length(initial.global.cluster.membership)==0)  {zz <-  my.cluster[[1]]}  else{zz <- initial.global.cluster.membership }
+    if (length(input.initial.global.cluster.membership)==0)  {zz <-  my.cluster[[1]]}  else{zz <- input.initial.global.cluster.membership }
     zz.local <- my.cluster
 
     # regression coeffcients
@@ -505,9 +498,9 @@ BCC.multi <- function(
     THETA.ACCEPT[[s]] <- matrix(0, nrow=(max.iter-burn.in)/thin, ncol=N)
   }
 
-  message(paste(rep('-',60),sep='',collapse=''), '\n'); message(paste(rep('-',60),sep='',collapse=''), '\n');
-  message('Running BCC Model', '\n')
-  message(paste(rep('-',60),sep='',collapse=''), '\n'); message(paste(rep('-',60),sep='',collapse=''), '\n');
+  message(paste(rep('-',60),sep='',collapse='') ); message(paste(rep('-',60),sep='',collapse=''));
+  message('Running BCC Model')
+  message(paste(rep('-',60),sep='',collapse='')); message(paste(rep('-',60),sep='',collapse=''));
 
   c.ga <- vector(mode = "list", length = R)
   for (s in 1:R) {
@@ -526,7 +519,6 @@ BCC.multi <- function(
       alpha.common,
       sigma.sq.e.common,
       unlist(k), unlist(K),
-      sig.var,
       # initials
       ppi,
       alpha,
@@ -590,7 +582,7 @@ BCC.multi <- function(
   )
 
   end = proc.time()[1]
-  message('It took', end - begin, 'seconds\n')
+  message('It took ', end - begin, ' seconds')
   run.time <-  end - begin
 
   rst$PPI   <- matrix(rst$PPI,   ncol=num.cluster, byrow=TRUE)
@@ -621,9 +613,9 @@ BCC.multi <- function(
   iter         <- rst$iter
 
   #--------------------------------------------------------------------------------------------------#
-  message(paste(rep('-',60),sep='',collapse=''), '\n'); message(paste(rep('-',60),sep='',collapse=''), '\n');
-  message('Post-Processing Results', '\n')
-  message(paste(rep('-',60),sep='',collapse=''), '\n'); message(paste(rep('-',60),sep='',collapse=''), '\n');
+  message(paste(rep('-',60),sep='',collapse='')); message(paste(rep('-',60),sep='',collapse=''));
+  message('Post-Processing Results')
+  message(paste(rep('-',60),sep='',collapse='')); message(paste(rep('-',60),sep='',collapse=''));
   #--------------------------------------------------------------------------------------------------#
   #----------------------------------------------------------------------------#
   #- Apply burn.in and thin
@@ -637,8 +629,8 @@ BCC.multi <- function(
     T.trans <- array(0,c(num.sample,N,num.cluster))
     for (j in 1:num.cluster){T.trans[,,j] <- t(T[,j,])}
     invisible(capture.output(out.relabel <- label.switching(method="STEPHENS",
-                                            z=ZZ,K=num.cluster,
-                                            p=T.trans)$permutations$STEPHENS))
+                                                            z=ZZ,K=num.cluster,
+                                                            p=T.trans)$permutations$STEPHENS))
     tp1 <- apply(T,c(1,2),mean); tp2 <- apply(tp1,1,sum)
     tp  <- cbind(tp1,tp2)
     tp[,1:num.cluster] <- tp[,1:num.cluster]/tp[,(num.cluster+1)]  # standardize
@@ -653,9 +645,9 @@ BCC.multi <- function(
       for (j in 1:num.cluster){T.LOCAL.trans[[s]][,,j] <- t(T.LOCAL[[s]][,j,])}
       invisible(capture.output(out.relabel.local[[s]] <-
                                  label.switching(method="STEPHENS",
-                                 z=ZZ.LOCAL[[s]],
-                                 K=num.cluster,
-                                 p=T.LOCAL.trans[[s]])$permutations$STEPHENS))
+                                                 z=ZZ.LOCAL[[s]],
+                                                 K=num.cluster,
+                                                 p=T.LOCAL.trans[[s]])$permutations$STEPHENS))
     }
 
     # Post-processing the parameters according to the switching label
@@ -710,16 +702,48 @@ BCC.multi <- function(
     postprob <- cluster.global <- cluster.local <- PPI <- T <-
       ALPHA <- my.alpha <- alpha.adjust <- THETA.ACCEPT <- GA.ACCEPT <-  NULL;
   }
+
+
+  # setting class to the returning objects
+  class(dat) <- "data"
+  class(N) <- "data"
+  class(R) <- "data"
+  class(PPI) <- "MCMC_sample"
+  class(ZZ) <- "MCMC_sample"
+  class(ALPHA) <- "MCMC_sample"
+  class(SIGMA.SQ.E) <- "MCMC_sample"
+  class(SIGMA.SQ.U) <- "MCMC_sample"
+  class(ZZ.LOCAL) <- "MCMC_sample"
+  class(GA) <- "MCMC_sample"
+  class(THETA.ACCEPT) <- "MCMC_sample"
+  class(GA.ACCEPT) <- "MCMC_sample"
+  class(my.alpha) <- "model_parameter"
+  class(alpha.adjust) <- "model_parameter"
+  class(postprob) <- "model_parameter"
+  class(k) <- "model_parameter"
+  class(K) <- "model_parameter"
+  class(dist) <- "model_parameter"
+  class(num.cluster) <- "model_parameter"
+  class(THETA) <- "model_parameter"
+  class(cluster.global) <- "cluster_membership"
+  class(cluster.local) <- "cluster_membership"
+  class(max.iter) <- "algorithm_parameter"
+  class(burn.in) <- "algorithm_parameter"
+  class(thin) <- "algorithm_parameter"
+  class(run.time) <- "algorithm_parameter"
+  class(summary.stat) <- "summary_statistics"
+
   # returning the parameters;
-  list(
+  res <- list(
     dat            = dat,
+    N              = N,
+    R              = R,
     PPI            = PPI,
     ZZ             = ZZ,
-    T              = T,
     ALPHA          = ALPHA,
     SIGMA.SQ.E     = SIGMA.SQ.E,
     SIGMA.SQ.U     = SIGMA.SQ.U,
-    T.LOCAL        = T.LOCAL,
+    #T.LOCAL        = T.LOCAL,
     ZZ.LOCAL       = ZZ.LOCAL,
     GA             = GA,
     THETA.ACCEPT   = THETA.ACCEPT,
@@ -727,21 +751,20 @@ BCC.multi <- function(
     alpha          = my.alpha,
     alpha.adjust   = alpha.adjust,
     postprob       = postprob,
-    cluster.global = cluster.global,
-    cluster.local  = cluster.local,
     k              = k,
     K              = K,
-    sig.var        = sig.var,
-    N              = N,
-    R              = R,
     dist           = dist,
     num.cluster    = num.cluster,
     THETA          = THETA,
+    cluster.global = cluster.global,
+    cluster.local  = cluster.local,
     max.iter       = max.iter,
     burn.in        = burn.in,
     thin           = thin,
     run.time       = run.time,
     summary.stat   = summary.stat)
+  class(res) <- "BCC"
+  res
 }
 
 #library(compiler)

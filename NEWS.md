@@ -11,3 +11,8 @@
 * Added BayesT function that calculates the discrepancy measurements for the fitted model
 * Modified default value for hyper.par, c.ga.tunning, and c.theta.tunning in BCC.multi function
 
+# BCClong 1.0.1
+
+* Updated BCC.multi function, output changed to class object instead of list
+
+
