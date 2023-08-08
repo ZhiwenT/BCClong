@@ -1,14 +1,13 @@
 citHeader("To cite BCClong in publications use:")
 
-citEntry(
-  entry    = "Unpublished",
-  title    = " Bayesian Consensus Clustering (BCC) model
-              for mixed-type longitudinal data",
-  note     = "Unpublished",
-  author   = "Z. Tan, C. Shen, Z. Lu",
-  year  = "2022",
-  url      = "https://github.com/ZhiwenT/BCClong",
-  textVersion = paste("Tan, Z., Shen, C., Lu, Z. (2022) BCClong: an R package for performing Bayesian Consensus Clustering model for clustering continuous, discrete and categorical longitudinal data. URL https://github.com/ZhiwenT/BCClong"
-
-  )
-)
+bibentry(
+     bibtype = "Misc",
+     title = "A Joint Modeling Approach for Clustering Mixed-Type Multivariate Longitudinal Data: Application to the CHILD Cohort Study",
+     author = c(
+        person("Zhiwen", "Tan", , "21zt9@queensu.ca", role = c("aut", "cre")),
+        person("Zihang", "Lu", , "zihang.lu@queensu.ca", role = "ctb"),
+        person("Chang", "Shen", role = "ctb")
+     ),
+     year = "2022",
+     url = "https://doi.org/10.48550/arXiv.2210.08385"
+   )
