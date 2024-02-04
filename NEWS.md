@@ -15,4 +15,7 @@
 
 * Updated BCC.multi function, output changed to class object instead of list
 
+# BCClong 1.0.2
+
+* Changed tests 
 

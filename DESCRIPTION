@@ -1,7 +1,7 @@
 Type: Package
 Package: BCClong
 Title: Bayesian Consensus Clustering for Multiple Longitudinal Features
-Version: 1.0.1
+Version: 1.0.2
 Authors@R: c(
     person("Zhiwen", "Tan", , "21zt9@queensu.ca", role = c("aut", "cre")),
     person("Zihang", "Lu", , "zihang.lu@queensu.ca", role = "ctb"),
@@ -60,4 +60,4 @@ VignetteBuilder:
 Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1

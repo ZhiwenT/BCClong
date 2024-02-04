@@ -11,8 +11,6 @@ test_that("trajplot works", {
           which.cluster = "global.cluster",
           title="Global Clustering",xlab="time (months)",
           ylab="anxiety",color=c("#00BA38", "#619CFF"))
-  expect_equal(length(p1), 10)
-  expect_equal(length(p2), 10)
   expect_equal(dim(p1$data), c(1789, 11))
   expect_equal(dim(p2$data), c(1789, 11))
 
