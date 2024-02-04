@@ -95,6 +95,7 @@
 #' @import Rmpfr
 #' @import truncdist
 #' @import cluster
+#' @import abind
 #' @importFrom coda geweke.diag
 #' @importFrom stats binomial poisson sd var
 #' @importFrom utils capture.output

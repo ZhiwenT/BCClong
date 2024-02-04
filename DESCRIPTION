@@ -43,7 +43,8 @@ Imports:
     Rcpp (>= 1.0.9),
     Rmpfr,
     stats,
-    truncdist
+    truncdist,
+    abind
 Suggests: 
     cowplot,
     joineRML,

@@ -15,7 +15,7 @@ observed and predict value
 }
 \description{
 This function assess the model goodness of fit by calculate the
-discrepancy measure T(bm{y}, bm{Theta}) with following steps
+discrepancy measure T(bm(y), bm(Theta)) with following steps
 (a) Generate T.obs based on the MCMC samples
 (b) Generate T.rep based on the posterior distribution of the parameters
 (c) Compare  T.obs and T.rep, and calculate the P values.
