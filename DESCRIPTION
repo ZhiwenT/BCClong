@@ -27,6 +27,7 @@ License: MIT + file LICENSE
 Depends: 
     R (>= 3.5.0)
 Imports: 
+    abind,
     cluster,
     coda,
     ggplot2,
