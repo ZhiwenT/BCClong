@@ -65,8 +65,6 @@ library(BCClong)
 library(joineRML)
 library(ggplot2)
 library(cowplot)
-# import data from joineRML library	(use ?epileptic.qol to see details)
-data(epileptic.qol)	
 # convert days to months
 epileptic.qol$time_month <- epileptic.qol$time/30.25 		
 # Sort by ID and time
@@ -160,11 +158,10 @@ plot(num.cluster, WAIC, type="o",cex=1.5, cex.lab=1.5,cex.axis=1.5,cex.main=1.5,
 
 Here, We used gaussian distribution for all three markers. The number of clusters was set to 2 because it has highest mean adjusted adherence. All hyper parameters were set to default.
 
-For the purpose of this tutorial, the MCMC iteration will be set to a small number to minimize the compile time and the result will be read from the pre-compiled RDS file.(The pre-compiled data file can be found here (`./inst/extdata/epil*.rds`))
+For the purpose of this tutorial, the MCMC iteration will be set to a small number to minimize the compile time and the result will be read from the pre-compiled RData file using `data(epil1), data(epil1)` and `data(epil1)`
 
 ```r
 # Fit the final model with the number of cluster 2 (largest mean adjusted adherence)
-set.seed(20220929)
 fit.BCC2 <-  BCC.multi (
     mydat = list(dat$anxiety_scale,dat$depress_scale,dat$aep_scale),
     dist = c("gaussian"),
@@ -177,7 +174,6 @@ fit.BCC2 <-  BCC.multi (
   per = 10, 				# output information every "per" iteration
   max.iter = 30) 			# maximum number of iteration
 
-set.seed(20220929)
 fit.BCC2b <-  BCC.multi (
     mydat = list(dat$anxiety_scale,dat$depress_scale,dat$aep_scale),
     dist = c("gaussian"),
@@ -190,7 +186,6 @@ fit.BCC2b <-  BCC.multi (
   per = 10,
   max.iter = 30)
 
-set.seed(20220929)
 fit.BCC2c <-  BCC.multi (
     mydat = list(dat$anxiety_scale,dat$depress_scale,dat$aep_scale),
     dist = c("gaussian"),
@@ -206,9 +201,12 @@ fit.BCC2c <-  BCC.multi (
 Load the pre-compiled results
 
 ```{r, warning=F, message=F}
-fit.BCC2 <- readRDS(file = "../inst/extdata/epil1.rds")
-fit.BCC2b <- readRDS(file = "../inst/extdata/epil2.rds")
-fit.BCC2c <- readRDS(file = "../inst/extdata/epil3.rds")
+data(epil1)
+data(epil2)
+data(epil3)
+fit.BCC2 <- epil1
+fit.BCC2b <- epil2
+fit.BCC2c <- epil3
 fit.BCC2b$cluster.global <- factor(fit.BCC2b$cluster.global,
 	labels=c("Cluster 1","Cluster 2"))
 table(fit.BCC2$cluster.global, fit.BCC2b$cluster.global)
@@ -219,11 +217,16 @@ table(fit.BCC2$cluster.global, fit.BCC2c$cluster.global)
 ```
 
 ## Printing Summary Statistics for key model parameters
+To print the BCC model
+
+```r
+print(fit.BCC2)
+```
 
 To print the summary statistics for all parameters 
 
 ```r
-fit.BCC2$summary.stat
+summary(fit.BCC2)
 ```
 
 To print the proportion \pi for each cluster (mean, sd, 2.5% and 97.5% percentile)
@@ -235,23 +238,18 @@ fit.BCC2$summary.stat$PPI
 The code below prints out all major parameters
 
 ```{r, warning=F, message=F}
-print(fit.BCC2$N)
-
-print(fit.BCC2$summary.stat$PPI)
-print(fit.BCC2$summary.stat$ALPHA)
-print(fit.BCC2$summary.stat$GA)
-print(fit.BCC2$summary.stat$SIGMA.SQ.U)
-print(fit.BCC2$summary.stat$SIGMA.SQ.E)
-
-table(fit.BCC2$cluster.global)
-table(fit.BCC2$cluster.local[[1]])
-table(fit.BCC2$cluster.local[[2]])
-table(fit.BCC2$cluster.local[[3]])
+summary(fit.BCC2)
 ```
 
 ## Visualize Clusters
 
-We can use the __*traceplot*__ function to plot the MCMC process and the __*trajplot*__ function to plot the trajectory for each feature.
+Generic plot can be used on BCC object, all relevant plots will be generate one by one using return key
+
+```r
+plot(fit.BCC2)
+```
+
+We can also use the __*traceplot*__ function to plot the MCMC process and the __*trajplot*__ function to plot the trajectory for each feature.
 
 ```{r, warning=F, message=F, fig.height=5, fig.width=8, fig.align='center'}
 #=====================================================#
@@ -306,11 +304,12 @@ plot_grid(gp1,NULL,gp2,NULL,gp3,NULL,
 
 ## Posterior Check
 
-The __*BayesT*__ function will be used for posterior check. Here we used the pre-compiled results, un-comment the line `res <- BayesT(fit=fit.BCC2)` to try your own. The pre-compiled data file can be found here (`./inst/extdata/conRes.rds`) For this function, the p-value between 0.3 to 0.7 was consider reasonable. In the scatter plot, the data pints should be evenly distributed around y = x. 
+The __*BayesT*__ function will be used for posterior check. Here we used the pre-compiled results, un-comment the line `res <- BayesT(fit=fit.BCC2)` to try your own. The pre-compiled data file can be attached using `data("conRes")` For this function, the p-value between 0.3 to 0.7 was consider reasonable. In the scatter plot, the data pints should be evenly distributed around y = x. 
 
 ```{r, message=F, warning=F, fig.height=5, fig.width=7, fig.align='center'}
 #res <- BayesT(fit=fit.BCC2)
-res <- readRDS(file = "../inst/extdata/conRes.rds")
+data("conRes")
+res <- conRes
 plot(log(res$T.obs),log(res$T.rep),xlim=c(8.45,8.7), cex=1.5,
 	ylim=c(8.45,8.7),xlab="Observed T statistics (in log scale)", ylab = "Predicted T statistics (in log scale)")
 abline(0,1,lwd=2,col=2)

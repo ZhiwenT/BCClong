@@ -4,13 +4,13 @@
 \alias{model.selection.criteria}
 \title{Model selection}
 \usage{
-model.selection.criteria(fit, fast_version = 1)
+model.selection.criteria(fit, fast_version = TRUE)
 }
 \arguments{
 \item{fit}{an objective output from BCC.multi() function}
 
-\item{fast_version}{if fast_verion=1 (default), then compute the DIC and WAIC using
-the first 100 MCMC samples (after burn-in and thinning) . If fast_version=0, then
+\item{fast_version}{if fast_verion=TRUE (default), then compute the DIC and WAIC using
+the first 100 MCMC samples (after burn-in and thinning) . If fast_version=FALSE, then
 compute the DIC and WAIC using all MCMC samples (after burn-in and thinning)}
 }
 \value{
@@ -21,9 +21,9 @@ A function that calculates DIC and WAIC for model selection
 }
 \examples{
 #import data
-filePath <- system.file("extdata", "example1.rds", package = "BCClong")
-fit.BCC <- readRDS(filePath)
-res <- model.selection.criteria(fit.BCC, fast_version=1)
+data(example1)
+fit.BCC <- example1
+res <- model.selection.criteria(fit.BCC, fast_version=TRUE)
 res
 
 }

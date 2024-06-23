@@ -1,6 +1,6 @@
 test_that("trajplot works", {
-  filePath <- system.file("extdata", "epil1.rds", package = "BCClong")
-  fit.BCC <- readRDS(filePath)
+  data("epil1")
+  fit.BCC <- epil1
   # for local cluster
   p1 <- trajplot(fit=fit.BCC,feature.ind=1, which.cluster = "local.cluster",
            title= "Local Clustering",xlab="time (months)",
@@ -23,8 +23,8 @@ test_that("trajplot works", {
 })
 
 test_that("errors",{
-  filePath <- system.file("extdata", "epil1.rds", package = "BCClong")
-  fit.BCC <- readRDS(filePath)
+  data("epil1")
+  fit.BCC <- epil1
   # for local cluster
   expect_error(trajplot(fit=fit.BCC,feature.ind=100, which.cluster = "local.cluster",
                  title= "Local Clustering",xlab="time (months)",

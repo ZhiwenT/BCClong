@@ -1,6 +1,6 @@
 test_that("BayesT works", {
-  filePath <- system.file("extdata", "example.rds", package = "BCClong")
-  fit.BCC <- readRDS(filePath)
+  data("example")
+  fit.BCC <- example
   set.seed(20220929)
   res <- BayesT(fit.BCC)
 
@@ -11,8 +11,8 @@ test_that("BayesT works", {
 })
 
 test_that("BayesT fails", {
-  filePath <- system.file("extdata", "example.rds", package = "BCClong")
-  fit.BCC <- readRDS(filePath)
+  data("example")
+  fit.BCC <- example
   set.seed(20220929)
 
   expect_error(BayesT("a"))

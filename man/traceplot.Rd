@@ -50,8 +50,8 @@ To visualize the MCMC chain for model parameters
 }
 \examples{
 # get data from the package
-filePath <- system.file("extdata", "epil1.rds", package = "BCClong")
-fit.BCC <- readRDS(filePath)
+data(epil1)
+fit.BCC <- epil1
 traceplot(fit=fit.BCC, parameter="PPI",ylab="pi",xlab="MCMC samples")
 
 }

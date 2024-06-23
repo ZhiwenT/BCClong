@@ -72,7 +72,7 @@ Here, We used a binomial distribution for spiders marker, a gaussian distributio
 
 We ran the model with 12,000 iterations, discard the first 2,000 sample, and kept every 10th sample. This resulted in 1,000 samples for each model parameter. The MCMC sampling process took about 30 minutes on an AMD Ryzen$^{TM}$ 5 5600X desktop computer.
 
-Since this program takes a long time to run, here we will use the pre-compile result in this example. The pre-compiled data file can be found here (`./inst/extdata/PBCseq.rds`)
+Since this program takes a long time to run, here we will use the pre-compile result in this example.
 
 ```r
 set.seed(89)
@@ -89,19 +89,25 @@ fit.BCC2 <- BCC.multi(
     max.iter = 200) 
 ```
 
-To run the pre-compiled result, please download the PBCseq.rds object from github under `inst/extdata/` folder. Then run the following code.
+To run the pre-compiled result, you can use `data(PBCseqfit)` to attach the fitted model.
 
 ```{r, warning=F, message=F}
 # pre-compiled result
-fit.BCC2 <- readRDS("../inst/extdata/PBCseq.rds")
+data(PBCseqfit)
+fit.BCC2 <- PBCseqfit
 ```
 
 ## Printing Summary Statistics for key model parameters
 
+To print the BCC model
+
+```r
+print(fit.BCC2)
+```
 To print the summary statistics for all parameters 
 
 ```r
-fit.BCC2$summary.stat
+summary(fit.BCC2)
 ```
 
 To print the proportion \pi for each cluster (mean, sd, 2.5% and 97.5% percentile)
@@ -113,18 +119,19 @@ fit.BCC2$summary.stat$PPI
 The code below prints out all major parameters
 
 ```{r, warning=F, message=F}
-print(fit.BCC2$summary.stat$PPI)
-print(fit.BCC2$summary.stat$ALPHA)
-print(fit.BCC2$cluster.global)
-print(fit.BCC2$cluster.local[[1]])
-print(fit.BCC2$cluster.local[[2]])
-print(fit.BCC2$cluster.local[[3]])
+summary(fit.BCC2)
 ```
 
 
 ## Visualize Clusters
 
+Generic plot can be used on BCC object, all relevant plots will be generate one by one using return key
+
+```r
+plot(fit.BCC2)
+```
 We can use the __*traceplot*__ function to plot the MCMC process and the __*trajplot*__ function to plot the trajectory for each feature.
+
 ```{r, warning=F, message=F, fig.height= 6, fig.width= 12, fig.align='center'}
 gp1 <- trajplot(fit=fit.BCC2,feature.ind=1,which.cluster = "local.cluster",
 			title= bquote(paste("Local Clustering (",hat(alpha)[1] ==.(round(fit.BCC2$alpha[1],2)),")")),

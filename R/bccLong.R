@@ -64,18 +64,16 @@
 #'             then the MCMC chain will keep one sample every 10 iterations
 #' @param per specify how often the MCMC chain will print the iteration number
 #' @param max.iter the number of MCMC iterations.
-#' @return Returns a model contains clustering information
+#' @return Returns a BCC class model contains clustering information
 #' @examples
 #' # import dataframe
-#' filePath <- system.file("extdata", "epil.rds", package = "BCClong")
-#' dat <- readRDS(filePath)
-#' set.seed(20220929)
+#' data(epil)
 #' # example only, larger number of iteration required for accurate result
 #' fit.BCC <-  BCC.multi (
-#'        mydat = list(dat$anxiety_scale,dat$depress_scale),
+#'        mydat = list(epil$anxiety_scale,epil$depress_scale),
 #'        dist = c("gaussian"),
-#'        id = list(dat$id),
-#'        time = list(dat$time),
+#'        id = list(epil$id),
+#'        time = list(epil$time),
 #'        formula =list(y ~ time + (1|id)),
 #'        num.cluster = 2,
 #'        burn.in = 3,
@@ -765,7 +763,7 @@ BCC.multi <- function(
     run.time       = run.time,
     summary.stat   = summary.stat)
   class(res) <- "BCC"
-  res
+  return(res)
 }
 
 #library(compiler)

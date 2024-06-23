@@ -1,6 +1,6 @@
 test_that("BCC.multi works", {
-  filePath <- system.file("extdata", "epil.rds", package = "BCClong")
-  dat <- readRDS(filePath)
+  data("epil")
+  dat <- epil
   set.seed(20220929)
   # example only, larger number of iteration required for accurate result
   fit.BCC <-  BCC.multi (
@@ -25,8 +25,8 @@ test_that("BCC.multi works", {
 
 
 test_that("BCC.multi fail", {
-  filePath <- system.file("extdata", "epil.rds", package = "BCClong")
-  dat <- readRDS(filePath)
+  data("epil")
+  dat <- epil
   set.seed(20220929)
   # example only, larger number of iteration required for accurate result
   expect_error(BCC.multi (

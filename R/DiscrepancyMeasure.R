@@ -7,20 +7,18 @@
 #' (c) Compare  T.obs and T.rep, and calculate the P values.
 #'
 #' @param fit an objective output from BCC.multi() function
-#' @return Returns a list with length equals to 2 that contains
+#' @return Returns a dataframe with length equals to 2 that contains
 #'         observed and predict value
 #' @examples
 #' #import data
-#' filePath <- system.file("extdata", "example.rds", package = "BCClong")
-#' fit.BCC <- readRDS(filePath)
-#' set.seed(20220929)
+#' data(example)
+#' fit.BCC <- example
 #' BayesT(fit.BCC)
 #'
 #' @export
 #' @importFrom stats rnorm rpois rbinom
 #' @importFrom mvtnorm rmvnorm
 #' @useDynLib BCClong, .registration=TRUE
-
 
 BayesT <- function(fit){
 
@@ -163,7 +161,8 @@ BayesT <- function(fit){
     }
     T.rep <- c(T.rep,sum(T.tmpp))
   }
-  result <- list(T.obs = T.obs, T.rep = T.rep)
+  #result <- list(T.obs = T.obs, T.rep = T.rep)
+  result <- data.frame(T.obs = T.obs, T.rep = T.rep)
   return(result)
 }
 

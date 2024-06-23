@@ -83,12 +83,16 @@ The package tree structure is provide below
   |- LICENSE
   |- README
   |- NEWS
+  |- data
+    |- conRes.rda
+    |- epil.rda
+    |- epil1.rda
+    |- epil2.rda
+    |- epil3.rda
+    |- example.rda
+    |- example1.rda
+    |- PBCseqfit.rda
   |- inst
-    |- extdata
-      |- Epileptic.rds
-      |- PBCseq.rds
-      |- MeanAdj.png
-      |- procedure.png
     |-CITATION
   |- man
     |- BayesT.Rd
@@ -96,8 +100,12 @@ The package tree structure is provide below
     |- model.selection.criteria.Rd
     |- traceplot.Rd
     |- trajplot.Rd
+    |- print.BCC.Rd
+    |- plot.BCC.Rd
+    |- summary.BCC.Rd
   |- R
     |- bcclong.R
+    |- classMethods.R
     |- DiscrepancyMeasure.R
     |- modelSelection.R
     |- RcppExports.R
@@ -113,7 +121,9 @@ The package tree structure is provide below
     |- Makevars.win
   |- vignettes
     |- ContinuousData.Rmd
+    |- ContinuousData.html
     |- MixedTypeData.Rmd
+    |- MixedTypeData.html
 ```
 
 ## Tutorials

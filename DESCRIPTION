@@ -1,7 +1,7 @@
 Type: Package
 Package: BCClong
 Title: Bayesian Consensus Clustering for Multiple Longitudinal Features
-Version: 1.0.2
+Version: 1.0.3
 Authors@R: c(
     person("Zhiwen", "Tan", , "21zt9@queensu.ca", role = c("aut", "cre")),
     person("Zihang", "Lu", , "zihang.lu@queensu.ca", role = "ctb"),
@@ -44,7 +44,8 @@ Imports:
     Rmpfr,
     stats,
     truncdist,
-    abind
+    abind,
+    gridExtra
 Suggests: 
     cowplot,
     joineRML,

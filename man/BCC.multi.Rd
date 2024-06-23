@@ -116,7 +116,7 @@ then the MCMC chain will keep one sample every 10 iterations}
 \item{max.iter}{the number of MCMC iterations.}
 }
 \value{
-Returns a model contains clustering information
+Returns a BCC class model contains clustering information
 }
 \description{
 This function performs clustering on mixed-type (continuous, discrete and
@@ -125,15 +125,13 @@ with MCMC sampling
 }
 \examples{
 # import dataframe
-filePath <- system.file("extdata", "epil.rds", package = "BCClong")
-dat <- readRDS(filePath)
-set.seed(20220929)
+data(epil)
 # example only, larger number of iteration required for accurate result
 fit.BCC <-  BCC.multi (
-       mydat = list(dat$anxiety_scale,dat$depress_scale),
+       mydat = list(epil$anxiety_scale,epil$depress_scale),
        dist = c("gaussian"),
-       id = list(dat$id),
-       time = list(dat$time),
+       id = list(epil$id),
+       time = list(epil$time),
        formula =list(y ~ time + (1|id)),
        num.cluster = 2,
        burn.in = 3,

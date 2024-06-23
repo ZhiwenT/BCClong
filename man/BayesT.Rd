@@ -10,7 +10,7 @@ BayesT(fit)
 \item{fit}{an objective output from BCC.multi() function}
 }
 \value{
-Returns a list with length equals to 2 that contains
+Returns a dataframe with length equals to 2 that contains
 observed and predict value
 }
 \description{
@@ -22,9 +22,8 @@ discrepancy measure T(bm(y), bm(Theta)) with following steps
 }
 \examples{
 #import data
-filePath <- system.file("extdata", "example.rds", package = "BCClong")
-fit.BCC <- readRDS(filePath)
-set.seed(20220929)
+data(example)
+fit.BCC <- example
 BayesT(fit.BCC)
 
 }

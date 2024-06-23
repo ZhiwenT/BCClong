@@ -34,15 +34,15 @@ local cluster indices}
 \item{color}{Color for the trajplot}
 }
 \value{
-void function with no return value, only show plots
+A plot object
 }
 \description{
 plot the longitudinal trajectory of features by local and global clusterings
 }
 \examples{
 # get data from the package
-filePath <- system.file("extdata", "epil1.rds", package = "BCClong")
-fit.BCC <- readRDS(filePath)
+data(epil1)
+fit.BCC <- epil1
 # for local cluster
 trajplot(fit=fit.BCC,feature.ind=1, which.cluster = "local.cluster",
          title= "Local Clustering",xlab="time (months)",

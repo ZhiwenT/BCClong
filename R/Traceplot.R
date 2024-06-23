@@ -21,19 +21,17 @@
 #' @return void function with no return value, only show plots
 #' @examples
 #' # get data from the package
-#' filePath <- system.file("extdata", "epil1.rds", package = "BCClong")
-#' fit.BCC <- readRDS(filePath)
+#' data(epil1)
+#' fit.BCC <- epil1
 #' traceplot(fit=fit.BCC, parameter="PPI",ylab="pi",xlab="MCMC samples")
 #'
 #' @export
-#' @importFrom graphics plot
+#' @import ggplot2
+#' @import gridExtra
 #' @useDynLib BCClong, .registration=TRUE
 
-traceplot <- function(fit, cluster.indx=1, feature.indx=1, parameter="PPI",  xlab = NULL,
-                      ylab = NULL,
-                      ylim = NULL,
-                      xlim = NULL,
-                      title = NULL) {
+traceplot <- function(fit, cluster.indx=1, feature.indx=1, parameter="PPI",
+                      xlab = NULL, ylab = NULL, ylim = NULL, xlim = NULL, title = NULL) {
   num.cluster <- fit$num.cluster
   num.sample <- (fit$max.iter - fit$burn.in)/fit$thin
   R <- fit$R
@@ -43,57 +41,84 @@ traceplot <- function(fit, cluster.indx=1, feature.indx=1, parameter="PPI",  xla
     stop("invalid parameter")
   }
 
-  if (parameter=="PPI"){
-    opar <- par(mfrow=c(1,num.cluster))
-    on.exit(par(opar))
-    for (j in 1:  num.cluster){
-      y <- fit$PPI[,j]
-      plot(x,y,type="l",xlab=xlab,ylab=ylab,xlim=xlim,ylim=ylim,
-           main=paste0("Cluster ",j), lwd=1.5)}}
+  plot_list <- list()
 
-  if (parameter=="ALPHA") {
-    opar <- par(mfrow=c(1,R))
-    on.exit(par(opar))
-    for (j in 1: R){
+  if (parameter == "PPI"){
+    for (j in 1:num.cluster) {
+      y <- fit$PPI[,j]
+      df <- data.frame(x = x, y = y)
+      p <- ggplot(df, aes(x = x, y = y)) +
+        geom_line() +
+        labs(title = paste0("Cluster ", j), x = xlab, y = ylab) +
+        theme_minimal()
+      if (!is.null(ylim)) p <- p + ylim(ylim)
+      if (!is.null(xlim)) p <- p + xlim(xlim)
+      plot_list[[j]] <- p
+    }
+  }
+
+  if (parameter == "ALPHA") {
+    for (j in 1:R) {
       y <- fit$ALPHA[,j]
-      plot(x,y,type="l",xlab=xlab,ylab=ylab,xlim=xlim,ylim=ylim,
-           main=paste0("Feature ",j),  lwd=1.5)
+      df <- data.frame(x = x, y = y)
+      p <- ggplot(df, aes(x = x, y = y)) +
+        geom_line() +
+        labs(title = paste0("Feature ", j), x = xlab, y = ylab) +
+        theme_minimal()
+      if (!is.null(ylim)) p <- p + ylim(ylim)
+      if (!is.null(xlim)) p <- p + xlim(xlim)
+      plot_list[[j]] <- p
     }
   }
-  if (parameter=="GA") {
+
+  if (parameter == "GA") {
     dim.GA <- dim(fit$GA[[feature.indx]][cluster.indx,,])[1]
-    opar <- par(mfrow=c(1,dim.GA))
-    on.exit(par(opar))
-    for (j in 1:dim.GA){
-      y <- fit$GA[[feature.indx]][cluster.indx,j,]
-      plot(x,y,type="l",xlab=xlab,ylab=ylab,xlim=xlim,ylim=ylim,
-           main=title, lwd=1.5)
+    for (j in 1:dim.GA) {
+      y <- fit$GA[[feature.indx]][cluster.indx, j, ]
+      df <- data.frame(x = x, y = y)
+      p <- ggplot(df, aes(x = x, y = y)) +
+        geom_line() +
+        labs(title = title, x = xlab, y = ylab) +
+        theme_minimal()
+      if (!is.null(ylim)) p <- p + ylim(ylim)
+      if (!is.null(xlim)) p <- p + xlim(xlim)
+      plot_list[[j]] <- p
     }
   }
-  if (parameter=="SIGMA.SQ.U") {
-    opar <- par(mfrow=c(1,num.cluster))
-    on.exit(par(opar))
-    for (j in 1:  num.cluster){
-      y <- fit$SIGMA.SQ.U[[feature.indx]][cluster.indx,j,]
-      plot(x,y,type="l",xlab=xlab,ylab=ylab,xlim=xlim,ylim=ylim,
-           main=title, lwd=1.5)
+
+  if (parameter == "SIGMA.SQ.U") {
+    for (j in 1:num.cluster) {
+      y <- fit$SIGMA.SQ.U[[feature.indx]][cluster.indx, j, ]
+      df <- data.frame(x = x, y = y)
+      p <- ggplot(df, aes(x = x, y = y)) +
+        geom_line() +
+        labs(title = title, x = xlab, y = ylab) +
+        theme_minimal()
+      if (!is.null(ylim)) p <- p + ylim(ylim)
+      if (!is.null(xlim)) p <- p + xlim(xlim)
+      plot_list[[j]] <- p
     }
   }
-  if (parameter=="SIGMA.SQ.E") {
-    if (fit$dist[feature.indx]=="gaussian"){
-      opar <- par(mfrow=c(1,num.cluster))
-      on.exit(par(opar))
-      for (j in 1:  num.cluster){
-        y <- fit$SIGMA.SQ.E[[feature.indx]][,cluster.indx]
-        plot(x,y,type="l",xlab=xlab,ylab=ylab,xlim=xlim,ylim=ylim,
-             main=title, lwd=1.5)
+
+  if (parameter == "SIGMA.SQ.E") {
+    if (fit$dist[feature.indx] == "gaussian") {
+      for (j in 1:num.cluster) {
+        y <- fit$SIGMA.SQ.E[[feature.indx]][, cluster.indx]
+        df <- data.frame(x = x, y = y)
+        p <- ggplot(df, aes(x = x, y = y)) +
+          geom_line() +
+          labs(title = title, x = xlab, y = ylab) +
+          theme_minimal()
+        if (!is.null(ylim)) p <- p + ylim(ylim)
+        if (!is.null(xlim)) p <- p + xlim(xlim)
+        plot_list[[j]] <- p
       }
-    }
-    else{
-          message("SIGMA.SQ.E is not estimated for features with Binomial
-                or Poisson distribution")
+    } else {
+      message("SIGMA.SQ.E is not estimated for features with Binomial or Poisson distribution")
     }
   }
+
+  do.call(grid.arrange, c(plot_list, nrow = 1))
 }
 
 # [END]

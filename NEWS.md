@@ -19,3 +19,11 @@
 
 * Changed tests 
 
+# BCClong 1.0.3
+
+* Now generic function such as print, summary, and plot can be applied to BCC model
+* Original RDS file now becomes Rdata file and can be directly access by user using `data()` function
+* Minor update on tutorial files
+* BayesT function now return a dataframe instead of list
+* Added `abine` package in the dependency
+
