@@ -115,7 +115,6 @@ summary.BCC <- function(object, ...){
 plot.BCC <- function(x, ...){
   ncluster <- x$num.cluster
   nfeature <- x$R
-  color <- seq(ncluster)
   old_par <- par(no.readonly = TRUE)
   on.exit(par(old_par))
   par(ask = TRUE)
@@ -124,12 +123,12 @@ plot.BCC <- function(x, ...){
              which.cluster = "local.cluster",
              title= bquote(paste("Local Clustering (",hat(alpha)[1] ==
                                    .(round(x$alpha[1],2)),")")),
-             xlab="time (months)",ylab=paste("Feature", i),color=color)
+             xlab="time (months)",ylab=paste("Feature", i))
     plot(temp)
     temp1 <- trajplot(fit=x,feature.ind=i,
              which.cluster = "global.cluster",
              title="Global Clustering",xlab="time (months)",
-             ylab=paste("Feature", i),color=color)
+             ylab=paste("Feature", i))
     plot(temp1)
   }
   traceplot(fit=x, parameter="PPI",ylab="pi",xlab="MCMC samples")
