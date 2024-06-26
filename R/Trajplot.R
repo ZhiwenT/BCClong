@@ -5,7 +5,7 @@
 #' @param fit an objective output from BCC.multi() function
 #' @param feature.ind a numeric value indicating which feature to plot.
 #'                     The number indicates the order of the feature specified
-#'                     in mydat argument of the BCC.multi()() function
+#'                     in mydat argument of the BCC.multi() function
 #' @param which.cluster a character value: "global" or "local", indicating
 #'                      whether to plot the trajectory by global cluster or
 #'                      local cluster indices
